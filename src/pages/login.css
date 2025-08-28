@@ -1,0 +1,43 @@
+.comparison {
+    min-height: 100vh;
+    background: linear-gradient(to bottom right, #6366f1, #a855f7, #ec4899);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+.card {
+    max-width: 28rem;
+    width: 100%;
+}
+.card-header {
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.select-style {
+    width: 100%;
+    background-color: rgb(255 255 255 / 0.2);
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.select-style:hover {
+    background-color: rgb(255 255 255 / 0.3);
+}
+
+.icon-style {
+    width: 1.25rem;
+    height: 1.25rem;
+    transition: transform 200ms ease;
+}
