@@ -1,0 +1,71 @@
+import { useState, useEffect } from "react";
+import { TabBar, Sticky } from "@arco-design/mobile-react";
+import { useNavigate } from "react-router-dom";
+import { IconFile, IconHome } from "@arco-design/mobile-react/esm/icon";
+import { IconArchive, IconTag } from "@arco-design/web-react/icon";
+
+const SiderContent = () => {
+    const navigate = useNavigate();
+    const tabs = [
+        {
+            title: <span style={{ fontSize: 10 }}>Home</span>,
+            icon: (
+                <IconHome
+                    style={{
+                        fontSize: 20,
+                    }}
+                />
+            ),
+        },
+        {
+            title: <span style={{ fontSize: 10 }}>Orders</span>,
+            icon: (
+                <IconFile
+                    style={{
+                        fontSize: 20,
+                    }}
+                />
+            ),
+        },
+        {
+            title: <span style={{ fontSize: 10 }}>Inventory</span>,
+            icon: (
+                <IconArchive
+                    style={{
+                        fontSize: 20,
+                    }}
+                />
+            ),
+        },
+        {
+            title: <span style={{ fontSize: 10 }}>Prod. Perf.</span>,
+            icon: (
+                <IconTag
+                    style={{
+                        fontSize: 20,
+                    }}
+                />
+            ),
+        },
+    ];
+
+    return (
+        <Sticky position="bottom" style={{ height: 52 }}>
+            <TabBar
+                fixed={false}
+                style={{ height: "100%" }}
+                onChange={(value) => {
+                    if (value == 0) navigate("/home");
+                    else if (value == 1) navigate("/orders");
+                    else if (value == 2) navigate("/inventory");
+                    else if (value == 3) navigate("/prodPerf");
+                }}
+            >
+                {tabs.map((tab, index) => (
+                    <TabBar.Item title={tab.title} icon={tab.icon} key={index} />
+                ))}
+            </TabBar>
+        </Sticky>
+    );
+};
+export default SiderContent;
