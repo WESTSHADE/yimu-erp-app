@@ -5,7 +5,6 @@ import { Card, Grid, List } from "@arco-design/web-react";
 import { REALTIME_STATISTICS_LIST } from "../../constant/home";
 const { Row, Col } = Grid;
 const Home = () => {
-    const container = useRef<HTMLDivElement | null>(null);
     return (
         <div>
             <div style={{ padding: 16 }}>
