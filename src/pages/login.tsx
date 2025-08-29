@@ -1,11 +1,14 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Toast } from "@arco-design/mobile-react";
+import { Spin } from "@arco-design/web-react";
 import IconArrowIn from "@arco-design/mobile-react/esm/icon/IconArrowIn";
 import "./login.css";
 import { login } from "../api/login";
 import { useNavigate } from "react-router-dom";
+import { disableFlexible } from "../utils/flexible";
 
 const Login = () => {
+    const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const wskj_appId = "cli_a7cfd8a1903bd00c";
     const yimu_appId = "cli_a7cd15ffa9fad013";
@@ -16,18 +19,29 @@ const Login = () => {
     const wskj_feishu_login = `https://accounts.feishu.cn/open-apis/authen/v1/authorize?client_id=${wskj_appId}&redirect_uri=${redirect_uri}&state=${feishu_state}`;
     const yimu_feishu_login = `https://accounts.feishu.cn/open-apis/authen/v1/authorize?client_id=${yimu_appId}&redirect_uri=${redirect_uri}&state=${yimu_state}`;
 
+    // 在登录页面禁用响应式适配
+    useEffect(() => {
+        disableFlexible();
+    }, []);
+
     // 处理回调（如果您在当前页面处理回调）
     const handleCallback = async (code: string) => {
+        setLoading(true);
         try {
             login(code, feishu_state)
                 .then(({ data }) => {
                     localStorage.setItem("version", process.env.version || "");
                     localStorage.setItem("access_token", data.token);
                     localStorage.setItem("exp", data.exp + "");
+                    setLoading(false);
                     navigate("/home");
                 })
-                .catch(() => {})
-                .finally(() => {});
+                .catch(() => {
+                    setLoading(false);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
         } catch (err) {
             Toast.error("登录失败");
         } finally {
@@ -36,10 +50,6 @@ const Login = () => {
 
     // 检查URL中是否有回调的code参数
     useEffect(() => {
-        const token = localStorage.getItem("access_token");
-        if (token) {
-            navigate("/home");
-        }
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get("code");
         const state = urlParams.get("state");
@@ -49,132 +59,139 @@ const Login = () => {
     }, []);
 
     return (
-        <main className="comparison">
-            <div className="card">
-                <div className="card-header">
-                    <div
-                        style={{
-                            textAlign: "center",
-                            marginBottom: "2rem",
-                        }}
-                    >
+        <Spin
+            loading={loading}
+            style={{
+                display: "block",
+            }}
+        >
+            <main className="comparison">
+                <div className="card">
+                    <div className="card-header">
                         <div
                             style={{
-                                display: "flex",
-                                justifyContent: "center",
-                                marginBottom: "1rem",
+                                textAlign: "center",
+                                marginBottom: "2rem",
                             }}
                         >
                             <div
                                 style={{
-                                    backgroundColor: "rgb(255 255 255 / 0.2)",
-                                    padding: "0.75rem",
-                                    borderRadius: "9999px",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    marginBottom: "1rem",
                                 }}
-                            ></div>
+                            >
+                                <div
+                                    style={{
+                                        backgroundColor: "rgb(255 255 255 / 0.2)",
+                                        padding: "0.75rem",
+                                        borderRadius: "9999px",
+                                    }}
+                                ></div>
+                            </div>
+                            <h1
+                                style={{
+                                    fontSize: "1.875rem",
+                                    lineHeight: "2.25rem",
+                                    fontWeight: 700,
+                                    color: "white",
+                                    marginBottom: "0.5rem",
+                                }}
+                            >
+                                Welcome Back
+                            </h1>
+                            <p
+                                style={{
+                                    color: "rgb(255 255 255 / 0.8)",
+                                }}
+                            >
+                                Choose your origination
+                            </p>
                         </div>
-                        <h1
-                            style={{
-                                fontSize: "1.875rem",
-                                lineHeight: "2.25rem",
-                                fontWeight: 700,
-                                color: "white",
-                                marginBottom: "0.5rem",
-                            }}
-                        >
-                            Welcome Back
-                        </h1>
-                        <p
-                            style={{
-                                color: "rgb(255 255 255 / 0.8)",
-                            }}
-                        >
-                            Choose your origination
-                        </p>
-                    </div>
 
-                    <div
-                        style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "1rem",
-                            marginTop: "1rem",
-                        }}
-                    >
-                        <a
-                            href={wskj_feishu_login}
-                            rel="noopener nofollow"
+                        <div
                             style={{
-                                textDecoration: "none",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "1rem",
+                                marginTop: "1rem",
                             }}
                         >
-                            <button className="select-style">
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "0.75rem",
-                                    }}
-                                >
-                                    <span
+                            <a
+                                href={wskj_feishu_login}
+                                rel="noopener nofollow"
+                                style={{
+                                    textDecoration: "none",
+                                }}
+                            >
+                                <button className="select-style">
+                                    <div
                                         style={{
-                                            fontWeight: 500,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "0.75rem",
                                         }}
                                     >
-                                        杭州炜石信息技术有限公司
-                                    </span>
-                                </div>
-                                <IconArrowIn className="icon-style" />
-                            </button>
-                        </a>
-                        <a
-                            href={yimu_feishu_login}
-                            rel="noopener nofollow"
-                            style={{
-                                textDecoration: "none",
-                            }}
-                        >
-                            <button className="select-style">
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "0.75rem",
-                                    }}
-                                >
-                                    <span
+                                        <span
+                                            style={{
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            杭州炜石信息技术有限公司
+                                        </span>
+                                    </div>
+                                    <IconArrowIn className="icon-style" />
+                                </button>
+                            </a>
+                            <a
+                                href={yimu_feishu_login}
+                                rel="noopener nofollow"
+                                style={{
+                                    textDecoration: "none",
+                                }}
+                            >
+                                <button className="select-style">
+                                    <div
                                         style={{
-                                            fontWeight: 500,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "0.75rem",
                                         }}
                                     >
-                                        YIMU INTERNATIONAL INC
-                                    </span>
-                                </div>
-                                <IconArrowIn className="icon-style" />
-                            </button>
-                        </a>
-                    </div>
+                                        <span
+                                            style={{
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            YIMU INTERNATIONAL INC
+                                        </span>
+                                    </div>
+                                    <IconArrowIn className="icon-style" />
+                                </button>
+                            </a>
+                        </div>
 
-                    <div
-                        style={{
-                            marginTop: "2rem",
-                            textAlign: "center",
-                        }}
-                    >
-                        <p
+                        <div
                             style={{
-                                color: "rgb(255 255 255 / 0.6)",
-                                fontSize: "0.875rem",
-                                lineHeight: "1.25rem",
+                                marginTop: "2rem",
+                                textAlign: "center",
                             }}
-                            className="text-white/60 text-sm"
                         >
-                            © westshade · yimu
-                        </p>
+                            <p
+                                style={{
+                                    color: "rgb(255 255 255 / 0.6)",
+                                    fontSize: "0.875rem",
+                                    lineHeight: "1.25rem",
+                                }}
+                                className="text-white/60 text-sm"
+                            >
+                                © westshade · yimu
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        </Spin>
     );
 };
 

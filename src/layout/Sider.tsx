@@ -53,7 +53,7 @@ const SiderContent = () => {
         <Sticky position="bottom" style={{ height: 52 }}>
             <TabBar
                 fixed={false}
-                style={{ height: "100%" }}
+                style={{ height: "100%", backgroundColor: "#fff" }}
                 onChange={(value) => {
                     if (value == 0) navigate("/home");
                     else if (value == 1) navigate("/orders");
