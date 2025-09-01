@@ -1,4 +1,10 @@
-export const REALTIME_STATISTICS_LIST = [
+export const REALTIME_STATISTICS_LIST: {
+    title: string;
+    key: HOME.dataType;
+    type: "$" | "";
+    span: number;
+    color: string;
+}[] = [
     {
         title: "Net Sales",
         key: "netSales",

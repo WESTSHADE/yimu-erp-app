@@ -9,8 +9,8 @@ import request from "../utils/request";
  */
 export const getOrders = ({ pageSize, page, searchParams = "" }: GLOBAL.request): Promise<{ data: ORDERS.MostRecentOrders[] }> => {
     if (page && pageSize) {
-        return request.get(`/orders` + `?pagination[page]=${page}` + `&pagination[pageSize]=${pageSize}` + `&sort[0]=createdAt:desc` + searchParams);
+        return request.get(`/orders?pagination[page]=${page}&pagination[pageSize]=${pageSize}&sort[0]=createdAt:desc${searchParams}`);
     } else {
-        return request.get(`/orders` + `?sort[0]=createdAt:desc` + searchParams);
+        return request.get(`/orders?sort[0]=createdAt:desc${searchParams}`);
     }
 };

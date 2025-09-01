@@ -10,3 +10,24 @@ export const formatToLocalTime = (utcString: string, formatStr = "MMM DD, YYYY H
 export const convertToUTC = (localDate: Date | string) => {
     return dayjs(localDate).utc().format();
 };
+
+/**
+ * 格式化money,传入number或者string，返回美元$格式
+ * @param value
+ * @returns
+ */
+export const formatMoney = (value: number | string, fixed?: 2) => {
+    let number = parseFloat(value as string);
+
+    if (isNaN(number)) {
+        return "Invalid number";
+    }
+    if (number == 0) {
+        return "$0.00";
+    }
+    return number.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: fixed ? fixed : number % 1 === 0 ? 0 : 2,
+    });
+};

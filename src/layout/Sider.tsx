@@ -1,11 +1,22 @@
-import { useState, useEffect } from "react";
 import { TabBar, Sticky } from "@arco-design/mobile-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { IconFile, IconHome } from "@arco-design/mobile-react/esm/icon";
 import { IconArchive, IconTag } from "@arco-design/web-react/icon";
 
 const SiderContent = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // 根据当前路径确定激活的标签索引
+    const getActiveIndex = () => {
+        const pathname = location.pathname;
+        if (pathname === "/home" || pathname === "/") return 0;
+        if (pathname === "/orders") return 1;
+        if (pathname === "/inventory") return 2;
+        if (pathname === "/prodPerf") return 3;
+        return 0; // 默认返回首页
+    };
+
     const tabs = [
         {
             title: <span style={{ fontSize: 10 }}>Home</span>,
@@ -54,6 +65,7 @@ const SiderContent = () => {
             <TabBar
                 fixed={false}
                 style={{ height: "100%", backgroundColor: "#fff" }}
+                activeIndex={getActiveIndex()}
                 onChange={(value) => {
                     if (value == 0) navigate("/home");
                     else if (value == 1) navigate("/orders");
