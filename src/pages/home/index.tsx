@@ -1,13 +1,18 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { getOrders } from "../../api/orders";
 import { IconArrowIn } from "@arco-design/mobile-react/esm/icon";
 import { SearchBar, Button as MobileButton, Sticky } from "@arco-design/mobile-react";
 import { Card, Grid, List, Button as PCButton, Table, TableColumnProps } from "@arco-design/web-react";
 import { REALTIME_STATISTICS_LIST } from "../../constant/home";
-import { IconCheckCircle, IconClockCircle, IconFilter, IconCloseCircle, IconInfoCircle, IconLoading, IconStop } from "@arco-design/web-react/icon";
+import { IconCheckCircle, IconClockCircle, IconFilter, IconCloseCircle, IconInfoCircle, IconLoading, IconStop, IconPlus } from "@arco-design/web-react/icon";
 // utils
 import { formatMoney, formatToLocalTime } from "../../utils/format";
+// api
+import { getOrders } from "../../api/orders";
+import { getOverviewMobile } from "../../api/home";
+// css
+import "../home/index.css";
+
 const { Row, Col } = Grid;
 const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
     pending: (
@@ -49,37 +54,57 @@ const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
 };
 const Home = () => {
     const navigate = useNavigate();
-    const [currentData, setCurrentData] = useState<{
-        realTime: HOME.realTime;
-        overviewList: HOME.overview[];
-    }>({
-        realTime: {
-            netSales: 50,
-            orders: 2,
-            averageOrderValue: 20,
-            adsSpending: 10,
-            adsPercentage: 0.2,
-        },
-        overviewList: [
-            {
-                name: "T",
-                netSales: 50,
-                orders: 2,
-                averageOrderValue: 20,
-                adsSpending: 10,
-                adsPercentage: 0.2,
-            },
-        ],
+    const [overviewList, setOverviewList] = useState<HOME.overview[]>([]);
+    const [realTime, setRealTime] = useState<HOME.realTime>({
+        netSales: 50,
+        orders: 2,
+        averageOrderValue: 20,
+        adsSpending: 10,
+        adsPercentage: 0.2,
     });
+
     const [ordersList, setOrdersList] = useState<ORDERS.MostRecentOrders[]>([]);
-    const getOrdersList = async () => {
-        await getOrders({
-            page: 1,
-            pageSize: 8,
-            searchParams: "",
-        }).then((res) => {
-            setOrdersList(res.data);
-        });
+
+    const returnTableMap = (record: HOME.overview, key: "netSales" | "orderCount" | "avgOrderValue") => {
+        if (["netSales", "orderCount", "avgOrderValue"].includes(key)) {
+            return (
+                <div>
+                    <div
+                        style={{
+                            fontSize: 13,
+                            fontWeight: 500,
+                            color: "#1D2129",
+                        }}
+                    >
+                        {`$${record[key].value}`}
+                    </div>
+                    <div
+                        style={{
+                            fontSize: 10,
+                            fontWeight: 400,
+                            color: "#86909C",
+                        }}
+                    >
+                        {`$${record[key].period}`}
+                    </div>
+                    <div
+                        style={{
+                            fontWeight: 400,
+                        }}
+                    >
+                        <div
+                            style={{
+                                display: "flex",
+                                color: Number(record[key].vs) > 0 ? "#009A29" : "#CB272D",
+                            }}
+                        >
+                            <IconPlus style={{ color: Number(record[key].vs) > 0 ? "#009A29" : "#CB272D", fontSize: 12 }} />
+                            <div style={{ fontSize: 10 }}>{Math.abs(Number(record[key].vs)) + "%"}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
     };
 
     const columns: TableColumnProps[] = [
@@ -92,33 +117,40 @@ const Home = () => {
             },
             bodyCellStyle: {
                 backgroundColor: "#E8F3FF",
+                width: "8px",
             },
         },
         {
             title: "NS",
-            dataIndex: "netSales",
+            dataIndex: "NS",
             headerCellStyle: {
                 backgroundColor: "#E8F3FF",
             },
+            bodyCellStyle: {
+                padding: "4px",
+            },
             render: (value: string, record: HOME.overview) => {
-                return formatMoney(record.netSales);
+                return returnTableMap(record, "netSales");
             },
         },
         {
             title: "OD",
-            dataIndex: "orders",
-            headerCellStyle: {
-                backgroundColor: "#E8F3FF",
-            },
-        },
-        {
-            title: "AOV",
-            dataIndex: "averageOrderValue",
+            dataIndex: "OD",
             headerCellStyle: {
                 backgroundColor: "#E8F3FF",
             },
             render: (value: string, record: HOME.overview) => {
-                return formatMoney(record.averageOrderValue);
+                return returnTableMap(record, "orderCount");
+            },
+        },
+        {
+            title: "AOV",
+            dataIndex: "AOV",
+            headerCellStyle: {
+                backgroundColor: "#E8F3FF",
+            },
+            render: (value: string, record: HOME.overview) => {
+                return returnTableMap(record, "avgOrderValue");
             },
         },
         {
@@ -126,9 +158,6 @@ const Home = () => {
             dataIndex: "adsSpending",
             headerCellStyle: {
                 backgroundColor: "#E8F3FF",
-            },
-            render: (value: string, record: HOME.overview) => {
-                return formatMoney(record.adsSpending);
             },
         },
         {
@@ -139,9 +168,38 @@ const Home = () => {
             },
         },
     ];
+    const getOrdersList = async () => {
+        await getOrders({
+            page: 1,
+            pageSize: 8,
+            searchParams: "",
+        }).then((res) => {
+            setOrdersList(res.data);
+        });
+    };
+
+    const getOverviewMobileData = async () => {
+        await getOverviewMobile().then((res) => {
+            if (res) {
+                const data = Object.entries(res).map((item: [string, HOME.itemData]) => {
+                    let info: HOME.overview = {
+                        name: "",
+                        ...item[1],
+                    };
+                    if (item[0] == "today") info["name"] = "T";
+                    if (item[0] == "week") info["name"] = "W";
+                    if (item[0] == "month") info["name"] = "M";
+                    if (item[0] == "year") info["name"] = "Y";
+                    return info;
+                });
+                setOverviewList(data);
+            }
+        });
+    };
 
     useEffect(() => {
         getOrdersList();
+        getOverviewMobileData();
     }, []);
 
     return (
@@ -152,11 +210,14 @@ const Home = () => {
                         color: "#1D2129",
                         fontSize: 16,
                         fontWeight: 500,
+                        marginBottom: 12,
                     }}
                 >
                     Overview
                 </div>
-                <Table rowKey="name" columns={columns} data={currentData.overviewList} size="small" border borderCell pagination={false} />
+                <div className="homeTable">
+                    <Table rowKey="name" columns={columns} data={overviewList} size="small" border borderCell pagination={false} />
+                </div>
             </div>
             <Sticky topOffset={0} getScrollContainer={() => document.getElementById("main-scroll-container") || window}>
                 <div
@@ -217,9 +278,7 @@ const Home = () => {
                                     >
                                         <div style={{ color: "#1D2129", fontWeight: 500 }}>{item.title}</div>
                                         <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                            <div style={{ color: "#1D2129", fontWeight: 500, fontSize: 22 }}>
-                                                {item.type == "$" ? formatMoney(currentData.realTime[item.key]) : currentData.realTime[item.key]}
-                                            </div>
+                                            <div style={{ color: "#1D2129", fontWeight: 500, fontSize: 22 }}>{item.type == "$" ? formatMoney(realTime[item.key]) : realTime[item.key]}</div>
                                         </div>
                                     </Card>
                                 </Col>

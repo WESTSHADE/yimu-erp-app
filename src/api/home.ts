@@ -15,3 +15,12 @@ export const login = (
 }> => {
     return request.get("/login", { params: { code, state } });
 };
+
+/**
+ * overview数据
+ * @param code
+ * @returns
+ */
+export const getOverviewMobile = (): Promise<HOME.response_overview> => {
+    return request.get("/generate-overview-mobile-home");
+};

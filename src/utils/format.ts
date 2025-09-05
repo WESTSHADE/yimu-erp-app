@@ -6,11 +6,6 @@ export const formatToLocalTime = (utcString: string, formatStr = "MMM DD, YYYY H
     return dayjs.utc(utcString).local().format(formatStr);
 };
 
-// 工具函数：本地时间转UTC
-export const convertToUTC = (localDate: Date | string) => {
-    return dayjs(localDate).utc().format();
-};
-
 /**
  * 格式化money,传入number或者string，返回美元$格式
  * @param value
