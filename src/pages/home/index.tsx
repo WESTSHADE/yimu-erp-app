@@ -268,7 +268,6 @@ const Home = () => {
             </div>
             <Sticky topOffset={0} getScrollContainer={() => document.getElementById("main-scroll-container") || window}>
                 <div
-                    id="home-filter"
                     style={{
                         height: 22,
                         backgroundColor: "#FFFFFF",
@@ -294,7 +293,6 @@ const Home = () => {
                             </MobileButton>
                         }
                     /> */}
-
                     <div
                         style={{
                             color: "#1D2129",
@@ -304,7 +302,6 @@ const Home = () => {
                     >
                         {dateRange[0] ? `${dateRange[0]}-${dateRange[1]}` : `Today ${pacificTime().format("MM-DD-YYYY")}`}
                     </div>
-
                     <div
                         style={{
                             display: "flex",
@@ -313,12 +310,7 @@ const Home = () => {
                     >
                         <IconLeft />
                         <IconRight style={{}} />
-                        <Dropdown
-                            popupVisible={showDropdown}
-                            onVisibleChange={handleShowChange}
-                            droplist={dropdownContent}
-                            getPopupContainer={() => document.getElementById("home-filter") as HTMLElement}
-                        >
+                        <Dropdown popupVisible={showDropdown} onVisibleChange={handleShowChange} droplist={dropdownContent} getPopupContainer={(node) => node.parentElement as HTMLElement}>
                             <IconFilter
                                 style={{ fontSize: 20, marginLeft: 10 }}
                                 onClick={() => {

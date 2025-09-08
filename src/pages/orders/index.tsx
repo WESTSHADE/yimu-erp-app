@@ -122,7 +122,7 @@ const Orders = () => {
                                     style={searchOption.status == item.value ? { marginRight: 8, backgroundColor: "#E8F3FF", color: "#165DFF" } : { marginRight: 8 }}
                                     onClick={async () => {
                                         setSearchOption({ ...searchOption, status: item.value });
-                                        await getOrdersList(searchOption);
+                                        await getOrdersList({ ...searchOption, status: item.value });
                                     }}
                                 >
                                     {item.label}
