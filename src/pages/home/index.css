@@ -1,7 +1,15 @@
-/* .homeTable {
+.homeTable {
     .arco-table-size-small {
-        .arco-table-td {
-            padding: 0 !important;
+        .arco-table-tr {
+            .arco-table-td:first-child {
+                padding: 21px 9px !important;
+            }
+            .arco-table-td:not(:first-child) {
+                padding: 4px !important;
+            }
+        }
+        .arco-table-cell {
+            width: max-content !important;
         }
     }
-} */
+}

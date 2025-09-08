@@ -52,5 +52,13 @@ declare namespace HOME {
         adsPercentage: number;
     };
 
+    type ordersTotals = {
+        netSales: number;
+        orders: number;
+        adsSpending: number;
+        adsPercentage: number;
+        averageOrderValue: number;
+    };
+
     type dataType = "netSales" | "orders" | "averageOrderValue" | "adsSpending" | "adsPercentage";
 }

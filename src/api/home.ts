@@ -24,3 +24,20 @@ export const login = (
 export const getOverviewMobile = (): Promise<HOME.response_overview> => {
     return request.get("/generate-overview-mobile-home");
 };
+
+/**
+ * overview-orders数据
+ * @param code
+ * @returns
+ */
+export const getOverviewOrders = (
+    startTime: string,
+    endTime: string,
+    page: number,
+    pageSize: number
+): Promise<{
+    dateSummary: ORDERS.MostRecentOrders[];
+    totals: HOME.ordersTotals;
+}> => {
+    return request.get(`/generate-overview-ordersV2?start=${startTime}&end=${endTime}&timeGranularity=day&page=${page}&pageSize=${pageSize}`);
+};

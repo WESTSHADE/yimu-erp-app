@@ -2,14 +2,16 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconArrowIn } from "@arco-design/mobile-react/esm/icon";
 import { SearchBar, Button as MobileButton, Sticky } from "@arco-design/mobile-react";
-import { Card, Grid, List, Button as PCButton, Table, TableColumnProps } from "@arco-design/web-react";
+import { Card, Grid, List, Button as PCButton, Table, TableColumnProps, Dropdown } from "@arco-design/web-react";
 import { REALTIME_STATISTICS_LIST } from "../../constant/home";
-import { IconCheckCircle, IconClockCircle, IconFilter, IconCloseCircle, IconInfoCircle, IconLoading, IconStop, IconPlus } from "@arco-design/web-react/icon";
+import { IconCheckCircle, IconClockCircle, IconFilter, IconLeft, IconRight, IconCloseCircle, IconInfoCircle, IconLoading, IconStop, IconPlus } from "@arco-design/web-react/icon";
 // utils
+import { Dayjs } from "dayjs";
+import { calculatePercentage } from "../../utils/tool";
+import { pacificTime } from "../../utils/dayjs";
 import { formatMoney, formatToLocalTime } from "../../utils/format";
 // api
-import { getOrders } from "../../api/orders";
-import { getOverviewMobile } from "../../api/home";
+import { getOverviewMobile, getOverviewOrders } from "../../api/home";
 // css
 import "../home/index.css";
 
@@ -52,23 +54,35 @@ const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
         </span>
     ),
 };
+const initRealTime: HOME.ordersTotals = {
+    netSales: 0,
+    orders: 0,
+    averageOrderValue: 0,
+    adsSpending: 0,
+    adsPercentage: 0,
+};
 const Home = () => {
     const navigate = useNavigate();
     const [overviewList, setOverviewList] = useState<HOME.overview[]>([]);
-    const [realTime, setRealTime] = useState<HOME.realTime>({
-        netSales: 50,
-        orders: 2,
-        averageOrderValue: 20,
-        adsSpending: 10,
-        adsPercentage: 0.2,
-    });
-
+    const [showDropdown, setShowDropdown] = useState<boolean>(false);
+    const [dateRange, setDateRange] = useState<[Dayjs | undefined, Dayjs | undefined]>([undefined, undefined]);
+    const [comparisonRange, setComparisonRange] = useState<[Dayjs | undefined, Dayjs | undefined]>([undefined, undefined]);
+    const [currentRealTime, setCurrentRealTime] = useState<HOME.ordersTotals>(initRealTime);
+    const [compareRealTime, setCompareRealTime] = useState<HOME.ordersTotals>(initRealTime);
     const [ordersList, setOrdersList] = useState<ORDERS.MostRecentOrders[]>([]);
-
+    const handleShowChange = () => {
+        setShowDropdown(!showDropdown);
+    };
     const returnTableMap = (record: HOME.overview, key: "netSales" | "orderCount" | "avgOrderValue") => {
         if (["netSales", "orderCount", "avgOrderValue"].includes(key)) {
             return (
-                <div>
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                    }}
+                >
                     <div
                         style={{
                             fontSize: 13,
@@ -95,10 +109,13 @@ const Home = () => {
                         <div
                             style={{
                                 display: "flex",
+                                height: "14px",
+                                verticalAlign: "center",
+                                alignItems: "center",
                                 color: Number(record[key].vs) > 0 ? "#009A29" : "#CB272D",
                             }}
                         >
-                            <IconPlus style={{ color: Number(record[key].vs) > 0 ? "#009A29" : "#CB272D", fontSize: 12 }} />
+                            <IconPlus style={{ color: Number(record[key].vs) > 0 ? "#009A29" : "#CB272D", fontSize: 10 }} />
                             <div style={{ fontSize: 10 }}>{Math.abs(Number(record[key].vs)) + "%"}</div>
                         </div>
                     </div>
@@ -117,7 +134,6 @@ const Home = () => {
             },
             bodyCellStyle: {
                 backgroundColor: "#E8F3FF",
-                width: "8px",
             },
         },
         {
@@ -168,13 +184,24 @@ const Home = () => {
             },
         },
     ];
+
     const getOrdersList = async () => {
-        await getOrders({
-            page: 1,
-            pageSize: 8,
-            searchParams: "",
-        }).then((res) => {
-            setOrdersList(res.data);
+        const startTime = pacificTime(dateRange[0] || pacificTime())
+            .startOf("day")
+            .utc()
+            .format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        const endDate = pacificTime(dateRange[1] || pacificTime())
+            .endOf("day")
+            .utc()
+            .format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        const compareStartTime = pacificTime(comparisonRange[0]).startOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        const compareEndDate = pacificTime(comparisonRange[1]).endOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        await getOverviewOrders(startTime, endDate, 1, 8).then((res) => {
+            setOrdersList(res.dateSummary);
+            setCurrentRealTime(res.totals);
+        });
+        await getOverviewOrders(compareStartTime, compareEndDate, 1, 8).then((res) => {
+            setCompareRealTime(res.totals);
         });
     };
 
@@ -196,6 +223,26 @@ const Home = () => {
             }
         });
     };
+
+    const dropdownContent = (
+        <Card
+            style={{
+                marginTop: "16px",
+                borderTop: "1px solid #F2F3F5",
+            }}
+            bordered={false}
+        >
+            <div
+                style={{
+                    color: "#1D2129",
+                    fontSize: 14,
+                    fontWeight: 500,
+                }}
+            >
+                Payment Date
+            </div>
+        </Card>
+    );
 
     useEffect(() => {
         getOrdersList();
@@ -221,8 +268,9 @@ const Home = () => {
             </div>
             <Sticky topOffset={0} getScrollContainer={() => document.getElementById("main-scroll-container") || window}>
                 <div
+                    id="home-filter"
                     style={{
-                        height: 32,
+                        height: 22,
                         backgroundColor: "#FFFFFF",
                         padding: 16,
                         display: "flex",
@@ -230,7 +278,7 @@ const Home = () => {
                         alignItems: "center",
                     }}
                 >
-                    <SearchBar
+                    {/* <SearchBar
                         prefix={null}
                         style={{ padding: 0, flex: 1, height: 32 }}
                         actionButton={
@@ -245,8 +293,40 @@ const Home = () => {
                                 Search
                             </MobileButton>
                         }
-                    />
-                    <IconFilter style={{ fontSize: 20, marginLeft: 10 }} />
+                    /> */}
+
+                    <div
+                        style={{
+                            color: "#1D2129",
+                            fontSize: 14,
+                            fontWeight: 500,
+                        }}
+                    >
+                        {dateRange[0] ? `${dateRange[0]}-${dateRange[1]}` : `Today ${pacificTime().format("MM-DD-YYYY")}`}
+                    </div>
+
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                        }}
+                    >
+                        <IconLeft />
+                        <IconRight style={{}} />
+                        <Dropdown
+                            popupVisible={showDropdown}
+                            onVisibleChange={handleShowChange}
+                            droplist={dropdownContent}
+                            getPopupContainer={() => document.getElementById("home-filter") as HTMLElement}
+                        >
+                            <IconFilter
+                                style={{ fontSize: 20, marginLeft: 10 }}
+                                onClick={() => {
+                                    setShowDropdown(true);
+                                }}
+                            />
+                        </Dropdown>
+                    </div>
                 </div>
             </Sticky>
             <div
@@ -277,8 +357,20 @@ const Home = () => {
                                         }}
                                     >
                                         <div style={{ color: "#1D2129", fontWeight: 500 }}>{item.title}</div>
-                                        <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                            <div style={{ color: "#1D2129", fontWeight: 500, fontSize: 22 }}>{item.type == "$" ? formatMoney(realTime[item.key]) : realTime[item.key]}</div>
+
+                                        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                }}
+                                            >
+                                                <div style={{ color: "#1D2129", fontWeight: 500, fontSize: 22 }}>
+                                                    {item.type == "$" ? formatMoney(currentRealTime[item.key] || 0) : currentRealTime[item.key] || 0}
+                                                </div>
+                                                <div>{calculatePercentage(Number(currentRealTime[item.key] || 0), Number(compareRealTime[item.key]) || 0)}</div>
+                                            </div>
+                                            <div style={{ color: "#86909C", fontSize: 14 }}>{item.type == "$" ? formatMoney(currentRealTime[item.key] || 0) : currentRealTime[item.key] || 0}</div>
                                         </div>
                                     </Card>
                                 </Col>
