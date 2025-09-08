@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @font-face {
     font-family: "PingFang SC";
     src: url("./pingFangSc-regular.otf");
@@ -9,7 +13,6 @@
     src: url("./pingFangSc-medium.otf");
     font-weight: 500;
 }
-
 :root {
     --primary-font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
 }
