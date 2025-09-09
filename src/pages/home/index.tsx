@@ -69,7 +69,7 @@ const Home = () => {
     const [comparisonRange, setComparisonRange] = useState<[Dayjs | undefined, Dayjs | undefined]>([undefined, undefined]);
     const [currentRealTime, setCurrentRealTime] = useState<HOME.ordersTotals>(initRealTime);
     const [compareRealTime, setCompareRealTime] = useState<HOME.ordersTotals>(initRealTime);
-    const [ordersList, setOrdersList] = useState<ORDERS.MostRecentOrders[]>([]);
+    const [ordersList, setOrdersList] = useState<ORDERS.order[]>([]);
     const handleShowChange = () => {
         setShowDropdown(!showDropdown);
     };

@@ -4,10 +4,12 @@ import { IconCheckCircle, IconClockCircle, IconFilter, IconCloseCircle, IconInfo
 import { getOrders } from "../../api/orders";
 import { IconArrowIn } from "@arco-design/mobile-react/esm/icon";
 import { List, Card, Button as PCButton, Spin } from "@arco-design/web-react";
+import { useNavigate } from "react-router-dom";
 // constant
 import { OrderStatusList } from "../../constant/orders";
 // utils
 import { formatMoney, formatToLocalTime } from "../../utils/format";
+import { pacificTime } from "../../utils/dayjs";
 const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
     pending: (
         <span style={{ color: "#FF7D00" }}>
@@ -47,7 +49,8 @@ const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
     ),
 };
 const Orders = () => {
-    const [ordersList, setOrdersList] = useState<ORDERS.MostRecentOrders[]>([]);
+    const navigate = useNavigate();
+    const [ordersList, setOrdersList] = useState<ORDERS.order[]>([]);
     const [scrollLoading, setScrollLoading] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [searchOption, setSearchOption] = useState<ORDERS.searchOption>({
@@ -60,18 +63,22 @@ const Orders = () => {
         const { status, reset } = searchOption;
         setScrollLoading(true);
         setLoading(true);
-        let filter = "";
-        if (status) filter += status == "all" ? "" : `&filters[status][$eq]=${status}`;
-        await getOrders({
-            page: 1,
-            pageSize: 20,
-            searchParams: filter,
-        }).then((res) => {
-            if (!reset) setOrdersList([...ordersList, ...res.data]);
-            else setOrdersList(res.data);
-            setScrollLoading(false);
-            setLoading(false);
-        });
+        let filter = "&field=date&direction=desc";
+        if (status)
+            filter +=
+                status == "all"
+                    ? ""
+                    : `&orderStatus=${JSON.stringify({
+                          is: status,
+                      })}`;
+        await getOrders(pacificTime("2025-06-01").startOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"), pacificTime().endOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"), 1, 20, filter).then(
+            (res) => {
+                if (!reset) setOrdersList([...ordersList, ...res.dataSummary]);
+                else setOrdersList(res.dataSummary);
+                setScrollLoading(false);
+                setLoading(false);
+            }
+        );
     };
 
     useEffect(() => {
@@ -146,6 +153,13 @@ const Orders = () => {
                         }}
                         render={(item, index) => (
                             <List.Item
+                                onClick={() => {
+                                    navigate("/orders/detail", {
+                                        state: {
+                                            ordersDetail: item,
+                                        },
+                                    });
+                                }}
                                 key={index}
                                 style={{
                                     padding: "12px 0",

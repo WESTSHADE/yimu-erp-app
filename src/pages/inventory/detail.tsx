@@ -1,11 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Sticky, NavBar } from "@arco-design/mobile-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getComposites } from "../../api/inventory";
-import { IconArrowIn } from "@arco-design/mobile-react/esm/icon";
-import { List, Card, Button as PCButton, Spin, Tag, Input, Descriptions } from "@arco-design/web-react";
+import { Card, Tag, Descriptions } from "@arco-design/web-react";
 // constant
-import { warehouseOptions, stockStatusOptions } from "../../constant/inventory";
+import { stockStatusOptions } from "../../constant/inventory";
 import { DataType } from "@arco-design/web-react/es/Descriptions/interface";
 const InventoryDetail = () => {
     const navBarRef = useRef(null);

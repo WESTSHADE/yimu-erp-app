@@ -36,7 +36,7 @@ export const getOverviewOrders = (
     page: number,
     pageSize: number
 ): Promise<{
-    dateSummary: ORDERS.MostRecentOrders[];
+    dateSummary: ORDERS.order[];
     totals: HOME.ordersTotals;
 }> => {
     return request.get(`/generate-overview-ordersV2?start=${startTime}&end=${endTime}&timeGranularity=day&page=${page}&pageSize=${pageSize}`);

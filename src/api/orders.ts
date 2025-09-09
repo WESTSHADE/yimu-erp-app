@@ -7,10 +7,15 @@ import request from "../utils/request";
  * @param searchParams
  * @returns
  */
-export const getOrders = ({ pageSize, page, searchParams = "" }: GLOBAL.request): Promise<{ data: ORDERS.MostRecentOrders[] }> => {
-    if (page && pageSize) {
-        return request.get(`/orders?pagination[page]=${page}&pagination[pageSize]=${pageSize}&sort[0]=createdAt:desc${searchParams}`);
-    } else {
-        return request.get(`/orders?sort[0]=createdAt:desc${searchParams}`);
-    }
+export const getOrders = (
+    startTime: string,
+    endTime: string,
+    page: number,
+    pageSize: number,
+    searchParams: string
+): Promise<{
+    dataSummary: ORDERS.order[];
+    totals: HOME.ordersTotals;
+}> => {
+    return request.get(`/generate-overview-ordersV2?sort[0]=createdAt:desc&start=${startTime}&end=${endTime}&timeGranularity=day&page=${page}&pageSize=${pageSize}${searchParams}`);
 };
