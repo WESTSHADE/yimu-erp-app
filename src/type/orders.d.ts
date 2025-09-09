@@ -26,6 +26,7 @@ declare namespace ORDERS {
             code: string;
         }[];
         items: {
+            quantity: number;
             product?: product;
             variation?: variation;
         }[];

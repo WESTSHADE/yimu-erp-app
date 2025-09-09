@@ -1,9 +1,7 @@
 import { ReactNode, useEffect, useRef } from "react";
 import { Sticky, NavBar } from "@arco-design/mobile-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Card, Tag, Descriptions } from "@arco-design/web-react";
-// constant
-import { stockStatusOptions } from "../../constant/inventory";
+import { Card, Descriptions } from "@arco-design/web-react";
 import { DataType } from "@arco-design/web-react/es/Descriptions/interface";
 // utils
 import { formatToLocalTime } from "../../utils/format";
@@ -76,10 +74,24 @@ const OrdersDetail = () => {
             value: ordersDetail.customerType,
         },
         {
-            label: "Product Name*Items sold",
+            label: (
+                <div
+                    style={{
+                        whiteSpace: "normal",
+                        wordBreak: "break-word",
+                        lineHeight: "1.4",
+                    }}
+                >
+                    Product Name * Items sold
+                </div>
+            ),
             value:
                 ordersDetail.items.map((item) => {
-                    return <div>{item.product ? item.product.name : `(${item?.variation?.sku})${item?.variation?.product?.name}`}</div>;
+                    return (
+                        <div>
+                            {item.product ? item.product.name : `(${item?.variation?.sku})${item?.variation?.product?.name}`} * {item.quantity}
+                        </div>
+                    );
                 }) || 0,
         },
         {

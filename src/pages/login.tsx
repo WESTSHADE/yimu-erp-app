@@ -50,11 +50,20 @@ const Login = () => {
 
     // 检查URL中是否有回调的code参数
     useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get("code");
-        const state = urlParams.get("state");
-        if (code && state === feishu_state) {
-            handleCallback(code);
+        const exp = localStorage.getItem("exp");
+        const date = new Date().getTime();
+        if (!exp || date > Number(exp) * 1000) {
+            // 清除过期的 token
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("exp");
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get("code");
+            const state = urlParams.get("state");
+            if (code && state === feishu_state) {
+                handleCallback(code);
+            }
+        } else {
+            navigate("/home");
         }
     }, []);
 
