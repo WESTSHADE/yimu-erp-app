@@ -10,10 +10,10 @@ const SiderContent = () => {
     // 根据当前路径确定激活的标签索引
     const getActiveIndex = () => {
         const pathname = location.pathname;
-        if (pathname === "/home" || pathname === "/") return 0;
-        if (pathname === "/orders") return 1;
-        if (pathname === "/inventory") return 2;
-        if (pathname === "/prodPerf") return 3;
+        if (pathname.includes("/home") || pathname === "/") return 0;
+        if (pathname.includes("/orders")) return 1;
+        if (pathname.includes("/inventory")) return 2;
+        if (pathname.includes("/prodPerf")) return 3;
         return 0; // 默认返回首页
     };
 

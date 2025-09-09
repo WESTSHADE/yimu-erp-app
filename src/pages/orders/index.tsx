@@ -11,37 +11,37 @@ import { formatMoney, formatToLocalTime } from "../../utils/format";
 const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
     pending: (
         <span style={{ color: "#FF7D00" }}>
-            <IconInfoCircle style={{ marginRight: 6 }} />
+            <IconInfoCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "baseline" }} />
             Pending
         </span>
     ),
     processing: (
         <span style={{ color: "#072CA6" }}>
-            <IconClockCircle style={{ marginRight: 6 }} />
+            <IconClockCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "baseline" }} />
             Processing
         </span>
     ),
     "partial-shipped": (
         <span style={{ color: "#4080FF" }}>
-            <IconLoading style={{ marginRight: 6, animation: "none" }} />
+            <IconLoading style={{ fontSize: 12, marginRight: 6, verticalAlign: "baseline" }} />
             Partially Shipped
         </span>
     ),
     shipped: (
         <span style={{ color: "#009A29" }}>
-            <IconCheckCircle style={{ marginRight: 6 }} />
+            <IconCheckCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "baseline" }} />
             Shipped
         </span>
     ),
     cancelled: (
         <span style={{ color: "#86909C" }}>
-            <IconCloseCircle style={{ marginRight: 6 }} />
+            <IconCloseCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "baseline" }} />
             Cancelled
         </span>
     ),
     refunded: (
         <span style={{ color: "#8547DA" }}>
-            <IconStop style={{ marginRight: 6 }} />
+            <IconStop style={{ fontSize: 12, marginRight: 6, verticalAlign: "baseline" }} />
             Refunded
         </span>
     ),

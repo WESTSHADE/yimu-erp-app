@@ -1,12 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { debounce } from "lodash";
 import { Sticky } from "@arco-design/mobile-react";
 import { IconFilter } from "@arco-design/web-react/icon";
 import { getComposites } from "../../api/inventory";
 import { IconArrowIn } from "@arco-design/mobile-react/esm/icon";
-import { List, Card, Button as PCButton, Spin, Tag, Input, Tabs } from "@arco-design/web-react";
+import { List, Card, Button as PCButton, Spin, Tag, Input } from "@arco-design/web-react";
 // constant
 import { warehouseOptions, stockStatusOptions } from "../../constant/inventory";
 const Inventory = () => {
+    const navigate = useNavigate();
     const [inventoryList, setInventoryList] = useState<Inventory.composite[]>([]);
     const [underSafetyStock, setUnderSafetyStock] = useState<number>(0);
     const [scrollLoading, setScrollLoading] = useState<boolean>(false);
@@ -16,14 +19,22 @@ const Inventory = () => {
         pageSize: 10,
         warehouseSearchType: "all",
         reset: true,
+        search: "",
     });
 
+    const debouncedSearch = useRef(
+        debounce((searchParams: string) => {
+            getInventoryList({ ...searchOption, search: searchParams });
+        }, 800)
+    ).current;
+
     const getInventoryList = async (searchOption: Inventory.searchOption) => {
-        const { warehouseSearchType, reset } = searchOption;
+        const { warehouseSearchType, reset, search } = searchOption;
         setScrollLoading(true);
         setLoading(true);
         let filter = `pagination[page]=${1}&pagination[pageSize]=${20}`;
         if (warehouseSearchType != "all") filter += `&filters[${warehouseSearchType}][$notNull]=true&filters[${warehouseSearchType}][$gt]=0`;
+        if (search) filter += `&filters[$or][0][sku][$contains]=${search}&filters[$or][1][compositeProductNameZH][$contains]=${search}&filters[$or][2][compositeProductName][$contains]=${search}`;
         await getComposites({
             searchParams: filter,
         }).then((res) => {
@@ -75,17 +86,32 @@ const Inventory = () => {
                             height: 32,
                             display: "flex",
                             alignItems: "center",
+                            gap: 10,
                         }}
                     >
-                        <Input placeholder="Enter sku/name to search" allowClear />
-                        <PCButton
-                            type="primary"
+                        <div
                             style={{
-                                marginRight: 10,
+                                display: "flex",
+                                flex: 1,
+                                alignItems: "center",
                             }}
                         >
-                            Search
-                        </PCButton>
+                            <Input
+                                style={{ height: 32 }}
+                                placeholder="Enter sku/name to search"
+                                allowClear
+                                value={searchOption.search}
+                                onClear={() => {
+                                    setSearchOption({ ...searchOption, search: "" });
+                                    debouncedSearch("");
+                                }}
+                                onChange={(value) => {
+                                    setSearchOption({ ...searchOption, search: value });
+                                    debouncedSearch(value);
+                                }}
+                            />
+                            <PCButton type="primary">Search</PCButton>
+                        </div>
                         <IconFilter style={{ fontSize: 20 }} />
                     </div>
                     <div style={{ overflowX: "auto", width: "max-content" }}>
@@ -162,6 +188,13 @@ const Inventory = () => {
                             };
                             return (
                                 <List.Item
+                                    onClick={() => {
+                                        navigate("/inventory/detail", {
+                                            state: {
+                                                inventoryDetail: item,
+                                            },
+                                        });
+                                    }}
                                     key={index}
                                     style={{
                                         padding: "12px 0",

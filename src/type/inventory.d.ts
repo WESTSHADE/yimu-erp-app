@@ -4,15 +4,32 @@ declare namespace Inventory {
         page: number;
         pageSize: number;
         warehouseSearchType: string;
+        search: string;
     };
 
     type composite = {
         sku: string;
         irvine: number;
         santaAna: number;
+        us: number;
+        factory: number;
+        inventory: number;
+        transit: number;
         compositeProductName: string;
         compositeProductNameZH: string;
-        us: number;
         status: string;
+        description: string;
+        widthZH: number;
+        lengthZH: number;
+        heightZH: number;
+        width: number;
+        length: number;
+        height: number;
+        weight: number;
+        weightZH: number;
+        perPallet: number;
+        palletStatus: string;
+        categoryZH: string;
+        inventoryNote: string;
     };
 }
