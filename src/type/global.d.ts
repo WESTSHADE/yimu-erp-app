@@ -1,8 +1,8 @@
 declare namespace GLOBAL {
     type request = {
-        page: number;
-        pageSize: number;
-        searchParams: string;
+        page?: number;
+        pageSize?: number;
+        searchParams?: string;
     };
     type shipping = {
         firstName: string;
@@ -16,5 +16,18 @@ declare namespace GLOBAL {
         country: string;
         email: string;
         phone: string;
+    };
+
+    type meta = {
+        pagination: {
+            page: number;
+            pageSize: number;
+            pageCount?: number;
+            total: number;
+            draft?: number;
+            private?: number;
+            publish?: number;
+            warnCount?: number;
+        };
     };
 }

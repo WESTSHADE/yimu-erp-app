@@ -11,7 +11,7 @@ const Login = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const wskj_appId = "cli_a7cfd8a1903bd00c";
-    const yimu_appId = "cli_a7cd15ffa9fad013";
+    const yimu_appId = "cli_a8247e280f2b500e";
     const baseUrl = typeof window !== "undefined" ? `${window.location.protocol}//${window.location.host}` : "";
     const feishu_state = process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test" ? "wskj" : "wskj_dev";
     const yimu_state = process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test" ? "yimu" : "yimu_dev";

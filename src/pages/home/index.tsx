@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconArrowIn } from "@arco-design/mobile-react/esm/icon";
-import { SearchBar, Button as MobileButton, Sticky } from "@arco-design/mobile-react";
+import { Sticky } from "@arco-design/mobile-react";
 import { Card, Grid, List, Button as PCButton, Table, TableColumnProps, Dropdown } from "@arco-design/web-react";
 import { REALTIME_STATISTICS_LIST } from "../../constant/home";
 import { IconCheckCircle, IconClockCircle, IconFilter, IconLeft, IconRight, IconCloseCircle, IconInfoCircle, IconLoading, IconStop, IconPlus } from "@arco-design/web-react/icon";

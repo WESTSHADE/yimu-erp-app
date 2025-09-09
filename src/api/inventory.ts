@@ -9,6 +9,7 @@ export const getComposites = (
     params?: GLOBAL.request
 ): Promise<{
     data: Inventory.composite[];
+    meta: GLOBAL.meta;
 }> => {
     const { searchParams = "" } = params || {};
     return request.get(`/composite-product-costs?${searchParams}`);

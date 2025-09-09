@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import { SearchBar, Button as MobileButton, Sticky } from "@arco-design/mobile-react";
+import { Sticky } from "@arco-design/mobile-react";
 import { IconFilter } from "@arco-design/web-react/icon";
 import { getComposites } from "../../api/inventory";
 import { IconArrowIn } from "@arco-design/mobile-react/esm/icon";
-import { List, Card, Button as PCButton, Spin, Tag } from "@arco-design/web-react";
+import { List, Card, Button as PCButton, Spin, Tag, Input, Tabs } from "@arco-design/web-react";
 // constant
 import { warehouseOptions, stockStatusOptions } from "../../constant/inventory";
 const Inventory = () => {
     const [inventoryList, setInventoryList] = useState<Inventory.composite[]>([]);
+    const [underSafetyStock, setUnderSafetyStock] = useState<number>(0);
     const [scrollLoading, setScrollLoading] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [searchOption, setSearchOption] = useState<Inventory.searchOption>({
@@ -16,15 +17,14 @@ const Inventory = () => {
         warehouseSearchType: "all",
         reset: true,
     });
+
     const getInventoryList = async (searchOption: Inventory.searchOption) => {
         const { warehouseSearchType, reset } = searchOption;
         setScrollLoading(true);
         setLoading(true);
-        let filter = "";
+        let filter = `pagination[page]=${1}&pagination[pageSize]=${20}`;
         if (warehouseSearchType != "all") filter += `&filters[${warehouseSearchType}][$notNull]=true&filters[${warehouseSearchType}][$gt]=0`;
         await getComposites({
-            page: 1,
-            pageSize: 20,
             searchParams: filter,
         }).then((res) => {
             if (!reset) setInventoryList([...inventoryList, ...res.data]);
@@ -34,13 +34,35 @@ const Inventory = () => {
         });
     };
 
+    const getLowStockCompositeList = async (params = { selectCategory: "all" }) => {
+        const { selectCategory } = params;
+        setLoading(true);
+        let filter = `filters[showInventory][$eq]=true&filters[productType][$eq]=us&type=inventory&filters[status][$in][0]=lowstock&filters[status][$in][1]=outofstock`;
+        if (selectCategory != "all") {
+            filter += `&filters[category][$eq]=${selectCategory}`;
+        }
+        await getComposites({
+            searchParams: filter,
+        }).then((res) => {
+            setUnderSafetyStock(res.meta.pagination?.total || 0);
+            setLoading(false);
+        });
+    };
+
     useEffect(() => {
         getInventoryList(searchOption);
+        getLowStockCompositeList();
     }, []);
 
     return (
         <div>
-            <Sticky topOffset={0} getScrollContainer={() => document.getElementById("main-scroll-container") || window}>
+            <Sticky
+                style={{
+                    width: "100%",
+                }}
+                topOffset={0}
+                getScrollContainer={() => document.getElementById("main-scroll-container") || window}
+            >
                 <div
                     style={{
                         height: "max-content",
@@ -52,27 +74,19 @@ const Inventory = () => {
                         style={{
                             height: 32,
                             display: "flex",
-                            justifyContent: "space-between",
                             alignItems: "center",
                         }}
                     >
-                        <SearchBar
-                            prefix={null}
-                            style={{ padding: 0, flex: 1, height: 32 }}
-                            actionButton={
-                                <MobileButton
-                                    needActive
-                                    style={{
-                                        width: 77,
-                                        height: 32,
-                                        fontSize: 14,
-                                    }}
-                                >
-                                    Search
-                                </MobileButton>
-                            }
-                        />
-                        <IconFilter style={{ fontSize: 20, marginLeft: 10 }} />
+                        <Input placeholder="Enter sku/name to search" allowClear />
+                        <PCButton
+                            type="primary"
+                            style={{
+                                marginRight: 10,
+                            }}
+                        >
+                            Search
+                        </PCButton>
+                        <IconFilter style={{ fontSize: 20 }} />
                     </div>
                     <div style={{ overflowX: "auto", width: "max-content" }}>
                         {warehouseOptions.map((item) => {
@@ -92,6 +106,38 @@ const Inventory = () => {
                     </div>
                 </div>
             </Sticky>
+            <Card
+                bordered={false}
+                style={{
+                    margin: "16px 16px 0px 16px",
+                }}
+            >
+                <div
+                    style={{
+                        backgroundColor: "#FFF3F0",
+                        padding: 8,
+                    }}
+                >
+                    <div
+                        style={{
+                            color: "#1D2129",
+                            fontWeight: 500,
+                            marginBottom: 8,
+                        }}
+                    >
+                        SKU Below Safety Stock
+                    </div>
+                    <div
+                        style={{
+                            color: "#1D2129",
+                            fontWeight: 500,
+                            fontSize: 22,
+                        }}
+                    >
+                        {underSafetyStock}
+                    </div>
+                </div>
+            </Card>
             <Spin loading={loading} style={{ display: "block" }}>
                 <Card style={{ margin: "16px" }} bordered={false} bodyStyle={{ padding: "0px 14px" }}>
                     <List
@@ -110,9 +156,9 @@ const Inventory = () => {
                                 value: string;
                                 tag: string;
                             } = stockStatusOptions.find((itemA) => itemA.value === item.status) || {
-                                tag: "",
-                                label: "",
-                                value: "",
+                                label: "Out of Stock",
+                                value: "outofstock",
+                                tag: "red",
                             };
                             return (
                                 <List.Item
