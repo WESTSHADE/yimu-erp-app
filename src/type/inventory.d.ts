@@ -5,6 +5,7 @@ declare namespace Inventory {
         pageSize: number;
         warehouseSearchType: string;
         search: string;
+        stockStatus: string[];
     };
 
     type composite = {

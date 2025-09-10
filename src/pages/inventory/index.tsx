@@ -20,6 +20,7 @@ const Inventory = () => {
         warehouseSearchType: "all",
         reset: true,
         search: "",
+        stockStatus: [],
     });
 
     const debouncedSearch = useRef(
@@ -162,6 +163,25 @@ const Inventory = () => {
                     >
                         {underSafetyStock}
                     </div>
+                </div>
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                    }}
+                >
+                    <PCButton
+                        size="mini"
+                        type="text"
+                        style={{
+                            padding: 0,
+                            fontSize: 14,
+                            marginTop: 8,
+                            backgroundColor: "transparent",
+                        }}
+                    >
+                        View
+                    </PCButton>
                 </div>
             </Card>
             <Spin loading={loading} style={{ display: "block" }}>
