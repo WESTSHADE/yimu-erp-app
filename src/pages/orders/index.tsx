@@ -3,47 +3,48 @@ import { SearchBar, Button as MobileButton, Sticky } from "@arco-design/mobile-r
 import { IconCheckCircle, IconClockCircle, IconFilter, IconCloseCircle, IconInfoCircle, IconLoading, IconStop } from "@arco-design/web-react/icon";
 import { getOrders } from "../../api/orders";
 import { IconArrowIn } from "@arco-design/mobile-react/esm/icon";
-import { List, Card, Button as PCButton, Spin } from "@arco-design/web-react";
+import { List, Card, Button as PCButton, Spin, Descriptions } from "@arco-design/web-react";
 import { useNavigate } from "react-router-dom";
 // constant
 import { OrderStatusList } from "../../constant/orders";
 // utils
 import { formatMoney, formatToLocalTime } from "../../utils/format";
 import { pacificTime } from "../../utils/dayjs";
+import { DataType } from "@arco-design/web-react/es/Descriptions/interface";
 const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
     pending: (
         <span style={{ color: "#FF7D00" }}>
-            <IconInfoCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "baseline" }} />
+            <IconInfoCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "middle" }} />
             Pending
         </span>
     ),
     processing: (
         <span style={{ color: "#072CA6" }}>
-            <IconClockCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "baseline" }} />
+            <IconClockCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "middle" }} />
             Processing
         </span>
     ),
     "partial-shipped": (
         <span style={{ color: "#4080FF" }}>
-            <IconLoading style={{ fontSize: 12, marginRight: 6, verticalAlign: "baseline" }} />
+            <IconLoading style={{ fontSize: 12, marginRight: 6, animation: "none", verticalAlign: "middle" }} />
             Partially Shipped
         </span>
     ),
     shipped: (
         <span style={{ color: "#009A29" }}>
-            <IconCheckCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "baseline" }} />
+            <IconCheckCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "middle" }} />
             Shipped
         </span>
     ),
     cancelled: (
         <span style={{ color: "#86909C" }}>
-            <IconCloseCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "baseline" }} />
+            <IconCloseCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "middle" }} />
             Cancelled
         </span>
     ),
     refunded: (
         <span style={{ color: "#8547DA" }}>
-            <IconStop style={{ fontSize: 12, marginRight: 6, verticalAlign: "baseline" }} />
+            <IconStop style={{ fontSize: 12, marginRight: 6, verticalAlign: "middle" }} />
             Refunded
         </span>
     ),
@@ -151,57 +152,59 @@ const Orders = () => {
                             await getOrdersList({ ...searchOption, page: searchOption.page + 1 });
                             setSearchOption({ ...searchOption, page: searchOption.page + 1, reset: false });
                         }}
-                        render={(item, index) => (
-                            <List.Item
-                                onClick={() => {
-                                    navigate("/orders/detail", {
-                                        state: {
-                                            ordersDetail: item,
-                                        },
-                                    });
-                                }}
-                                key={index}
-                                style={{
-                                    padding: "12px 0",
-                                }}
-                            >
-                                <div style={{ display: "flex", justifyContent: "space-between", gap: "8px" }}>
-                                    <div style={{ flex: 1 }}>
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                width: "100%",
-                                                justifyContent: "space-between",
-                                            }}
-                                        >
-                                            <div>{`WS${item.id} ${item?.shipping?.firstName || ""} ${item?.shipping?.lastName || ""}`}</div>
-                                            <div>{formatMoney(item.total, 2)}</div>
+                        render={(item, index) => {
+                            const orderData: DataType = [
+                                { label: "Payment Date", value: item.paymentTime ? formatToLocalTime(item.paymentTime, "MM-DD-YYYY HH:mm:ss") : "" },
+                                { label: "Status", value: StatusMap[item.status as ORDERS.OrderStatus] ? StatusMap[item.status as ORDERS.OrderStatus] : <></> },
+                            ];
+                            return (
+                                <List.Item
+                                    onClick={() => {
+                                        navigate("/orders/detail", {
+                                            state: {
+                                                ordersDetail: item,
+                                            },
+                                        });
+                                    }}
+                                    key={index}
+                                    style={{
+                                        padding: "12px 0",
+                                    }}
+                                >
+                                    <div style={{ display: "flex", justifyContent: "space-between", gap: "8px" }}>
+                                        <div style={{ flex: 1 }}>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    width: "100%",
+                                                    justifyContent: "space-between",
+                                                }}
+                                            >
+                                                <div>{`WS${item.id} ${item?.shipping?.firstName || ""} ${item?.shipping?.lastName || ""}`}</div>
+                                                <div>{formatMoney(item.total, 2)}</div>
+                                            </div>
+                                            <Descriptions
+                                                data={orderData}
+                                                column={1}
+                                                labelStyle={{
+                                                    paddingBottom: "4px",
+                                                    height: 22,
+                                                    color: "#86909C",
+                                                    fontWeight: 400,
+                                                }}
+                                                valueStyle={{
+                                                    paddingBottom: "4px",
+                                                    textAlign: "right",
+                                                }}
+                                            />
                                         </div>
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                            }}
-                                        >
-                                            <div>Payment Date</div>
-                                            <div>{item.paymentTime ? formatToLocalTime(item.paymentTime, "MM-DD-YYYY HH:mm:ss") : ""}</div>
-                                        </div>
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                            }}
-                                        >
-                                            <div>Status</div>
-                                            <div>{StatusMap[item.status as ORDERS.OrderStatus] ? StatusMap[item.status as ORDERS.OrderStatus] : <></>}</div>
+                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#C9CDD4" }}>
+                                            <IconArrowIn />
                                         </div>
                                     </div>
-                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#C9CDD4" }}>
-                                        <IconArrowIn />
-                                    </div>
-                                </div>
-                            </List.Item>
-                        )}
+                                </List.Item>
+                            );
+                        }}
                     />
                 </Card>
             </Spin>

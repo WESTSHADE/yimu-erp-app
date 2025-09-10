@@ -30,4 +30,23 @@ declare namespace GLOBAL {
             warnCount?: number;
         };
     };
+
+    type image = {
+        id: number;
+        name: string;
+        src: string;
+        alt: string;
+        description: string;
+        pages: PAGES.page[];
+        categories: CATEGORY.category[];
+        createdAt?: string;
+        type?: string;
+        fileName?: string;
+        uploaded?: string;
+        fileType?: string;
+        fileSize?: number;
+        width?: number;
+        height?: number;
+        originFile?: File;
+    };
 }

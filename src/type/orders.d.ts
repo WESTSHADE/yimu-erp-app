@@ -4,10 +4,14 @@ declare namespace ORDERS {
     /** 最新订单条目 */
     type product = {
         name: string;
+        image?: Global.image;
+        variation?: variation;
     };
     type variation = {
         sku: string;
         product: product;
+        name: string;
+        image?: Global.image;
     };
     type order = {
         id: number;

@@ -1,8 +1,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconArrowIn } from "@arco-design/mobile-react/esm/icon";
-import { Sticky } from "@arco-design/mobile-react";
-import { Card, Grid, List, Button as PCButton, Table, TableColumnProps, Dropdown } from "@arco-design/web-react";
+import { Sticky, Dropdown } from "@arco-design/mobile-react";
+import { Card, Grid, List, Button as PCButton, Table, TableColumnProps, Descriptions } from "@arco-design/web-react";
 import { REALTIME_STATISTICS_LIST } from "../../constant/home";
 import { IconCheckCircle, IconClockCircle, IconFilter, IconLeft, IconRight, IconCloseCircle, IconInfoCircle, IconLoading, IconStop, IconPlus } from "@arco-design/web-react/icon";
 // utils
@@ -14,42 +14,43 @@ import { formatMoney, formatToLocalTime } from "../../utils/format";
 import { getOverviewMobile, getOverviewOrders } from "../../api/home";
 // css
 import "../home/index.css";
+import { DataType } from "@arco-design/web-react/es/Descriptions/interface";
 
 const { Row, Col } = Grid;
 const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
     pending: (
         <span style={{ color: "#FF7D00" }}>
-            <IconInfoCircle style={{ marginRight: 6 }} />
+            <IconInfoCircle style={{ marginRight: 6, verticalAlign: "middle" }} />
             Pending
         </span>
     ),
     processing: (
         <span style={{ color: "#072CA6" }}>
-            <IconClockCircle style={{ marginRight: 6 }} />
+            <IconClockCircle style={{ marginRight: 6, verticalAlign: "middle" }} />
             Processing
         </span>
     ),
     "partial-shipped": (
         <span style={{ color: "#4080FF" }}>
-            <IconLoading style={{ marginRight: 6, animation: "none" }} />
+            <IconLoading style={{ marginRight: 6, animation: "none", verticalAlign: "middle" }} />
             Partially Shipped
         </span>
     ),
     shipped: (
         <span style={{ color: "#009A29" }}>
-            <IconCheckCircle style={{ marginRight: 6 }} />
+            <IconCheckCircle style={{ marginRight: 6, verticalAlign: "middle" }} />
             Shipped
         </span>
     ),
     cancelled: (
         <span style={{ color: "#86909C" }}>
-            <IconCloseCircle style={{ marginRight: 6 }} />
+            <IconCloseCircle style={{ marginRight: 6, verticalAlign: "middle" }} />
             Cancelled
         </span>
     ),
     refunded: (
         <span style={{ color: "#8547DA" }}>
-            <IconStop style={{ marginRight: 6 }} />
+            <IconStop style={{ marginRight: 6, verticalAlign: "middle" }} />
             Refunded
         </span>
     ),
@@ -224,26 +225,6 @@ const Home = () => {
         });
     };
 
-    const dropdownContent = (
-        <Card
-            style={{
-                marginTop: "16px",
-                borderTop: "1px solid #F2F3F5",
-            }}
-            bordered={false}
-        >
-            <div
-                style={{
-                    color: "#1D2129",
-                    fontSize: 14,
-                    fontWeight: 500,
-                }}
-            >
-                Payment Date
-            </div>
-        </Card>
-    );
-
     useEffect(() => {
         getOrdersList();
         getOverviewMobileData();
@@ -310,13 +291,30 @@ const Home = () => {
                     >
                         <IconLeft />
                         <IconRight style={{}} />
-                        <Dropdown popupVisible={showDropdown} onVisibleChange={handleShowChange} droplist={dropdownContent} getPopupContainer={(node) => node.parentElement as HTMLElement}>
-                            <IconFilter
-                                style={{ fontSize: 20, marginLeft: 10 }}
-                                onClick={() => {
-                                    setShowDropdown(true);
+                        <IconFilter
+                            style={{ fontSize: 20, marginLeft: 10 }}
+                            onClick={() => {
+                                setShowDropdown(true);
+                            }}
+                        />
+                        <Dropdown showDropdown={showDropdown} onOptionChange={handleShowChange} onCancel={() => setShowDropdown(false)} preventBodyScroll={true}>
+                            <Card
+                                style={{
+                                    marginTop: "16px",
+                                    borderTop: "1px solid #F2F3F5",
                                 }}
-                            />
+                                bordered={false}
+                            >
+                                <div
+                                    style={{
+                                        color: "#1D2129",
+                                        fontSize: 14,
+                                        fontWeight: 500,
+                                    }}
+                                >
+                                    Payment Date
+                                </div>
+                            </Card>
                         </Dropdown>
                     </div>
                 </div>
@@ -387,50 +385,52 @@ const Home = () => {
                         size={"small"}
                         header={null}
                         dataSource={ordersList}
-                        render={(item, index) => (
-                            <List.Item
-                                key={index}
-                                style={{
-                                    padding: "12px 0",
-                                }}
-                            >
-                                <div style={{ display: "flex", justifyContent: "space-between", gap: "8px" }}>
-                                    <div style={{ flex: 1 }}>
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                width: "100%",
-                                                justifyContent: "space-between",
-                                            }}
-                                        >
-                                            <div>{`WS${item.id} ${item?.shipping?.firstName || ""} ${item?.shipping?.lastName || ""}`}</div>
-                                            <div>{formatMoney(item.total, 2)}</div>
+                        render={(item, index) => {
+                            const orderData: DataType = [
+                                { label: "Payment Date", value: item.paymentTime ? formatToLocalTime(item.paymentTime, "MM-DD-YYYY HH:mm:ss") : "" },
+                                { label: "Status", value: StatusMap[item.status as ORDERS.OrderStatus] ? StatusMap[item.status as ORDERS.OrderStatus] : <></> },
+                            ];
+                            return (
+                                <List.Item
+                                    key={index}
+                                    style={{
+                                        padding: "12px 0",
+                                    }}
+                                >
+                                    <div style={{ display: "flex", justifyContent: "space-between", gap: "8px" }}>
+                                        <div style={{ flex: 1 }}>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    width: "100%",
+                                                    justifyContent: "space-between",
+                                                }}
+                                            >
+                                                <div>{`WS${item.id} ${item?.shipping?.firstName || ""} ${item?.shipping?.lastName || ""}`}</div>
+                                                <div>{formatMoney(item.total, 2)}</div>
+                                            </div>
+                                            <Descriptions
+                                                data={orderData}
+                                                column={1}
+                                                labelStyle={{
+                                                    paddingBottom: "4px",
+                                                    height: 22,
+                                                    color: "#86909C",
+                                                    fontWeight: 400,
+                                                }}
+                                                valueStyle={{
+                                                    paddingBottom: "4px",
+                                                    textAlign: "right",
+                                                }}
+                                            />
                                         </div>
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                            }}
-                                        >
-                                            <div>Payment Date</div>
-                                            <div>{item.paymentTime ? formatToLocalTime(item.paymentTime, "MM-DD-YYYY HH:mm:ss") : ""}</div>
-                                        </div>
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                            }}
-                                        >
-                                            <div>Status</div>
-                                            <div>{StatusMap[item.status as ORDERS.OrderStatus] ? StatusMap[item.status as ORDERS.OrderStatus] : <></>}</div>
+                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#C9CDD4" }}>
+                                            <IconArrowIn />
                                         </div>
                                     </div>
-                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#C9CDD4" }}>
-                                        <IconArrowIn />
-                                    </div>
-                                </div>
-                            </List.Item>
-                        )}
+                                </List.Item>
+                            );
+                        }}
                     />
                     <div style={{ display: "flex", height: "max-content", justifyContent: "flex-end", borderTop: "1px solid #E5E6EB" }}>
                         <PCButton
