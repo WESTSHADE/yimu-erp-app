@@ -1,38 +1,53 @@
 import { useEffect, useState, useRef } from "react";
 import { debounce } from "lodash";
-import { Sticky } from "@arco-design/mobile-react";
-import { IconFilter } from "@arco-design/web-react/icon";
+import { Sticky, Dropdown } from "@arco-design/mobile-react";
+import { IconFilter, IconLeft, IconRight } from "@arco-design/web-react/icon";
 import { getOverviewProduct } from "../../api/prod";
 import { List, Card, Button as PCButton, Spin, Input, Descriptions } from "@arco-design/web-react";
 // utils
 import { pacificTime } from "../../utils/dayjs";
 import { DataType } from "@arco-design/web-react/es/Descriptions/interface";
 import { formatMoney } from "../../utils/format";
+import SelectCustomize from "../../components/select-customize";
+import { filterValueInit } from "../../constant/global";
 
 const ProdPerf = () => {
     const [topProductList, setTopProductList] = useState<PROD.topProducts[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [filterValue, setFilterValue] = useState<GLOBAL.filterType>(filterValueInit);
+    const [showDropdown, setShowDropdown] = useState<boolean>(false);
     const [searchOption, setSearchOption] = useState<PROD.searchOption>({
         reset: true,
         search: "",
         start: "",
         end: "",
     });
+    const handleShowChange = () => {
+        setShowDropdown(!showDropdown);
+    };
 
     const debouncedSearch = useRef(
         debounce((searchParams: string) => {
-            getTopProductList({ ...searchOption, search: searchParams });
+            getTopProductList({ ...searchOption, search: searchParams }, filterValue);
         }, 800)
     ).current;
 
-    const getTopProductList = async (searchOption: PROD.searchOption) => {
+    const handleFilter = async (filterValue: GLOBAL.filterType) => {
+        setFilterValue(filterValue);
+        await getTopProductList(searchOption, filterValue);
+    };
+
+    const getTopProductList = async (searchOption: PROD.searchOption, filterValue: GLOBAL.filterType) => {
         const { reset, search } = searchOption;
         setLoading(true);
-        await getOverviewProduct(
-            pacificTime("2025-06-01").startOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
-            pacificTime().endOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
-            10000
-        ).then((res) => {
+        const currentDate = filterValue.startTime
+            ? filterValue.endTime
+                ? [filterValue.startTime, filterValue.endTime]
+                : [filterValue.startTime, filterValue.startTime]
+            : [filterValue.singleTime, filterValue.singleTime];
+        const startTime = pacificTime(currentDate[0]).startOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        const endDate = pacificTime(currentDate[1]).endOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        await getOverviewProduct(startTime, endDate, 10000).then((res) => {
             let new_topProductList = [];
             if (!reset) new_topProductList = [...topProductList, ...res.rankings.topProducts];
             else new_topProductList = [...res.rankings.topProducts];
@@ -42,10 +57,11 @@ const ProdPerf = () => {
             setTopProductList(new_topProductList);
             setLoading(false);
         });
+        setShowDropdown(false);
     };
 
     useEffect(() => {
-        getTopProductList(searchOption);
+        getTopProductList(searchOption, filterValue);
     }, []);
 
     return (
@@ -70,6 +86,7 @@ const ProdPerf = () => {
                             display: "flex",
                             alignItems: "center",
                             gap: 10,
+                            marginBottom: 12,
                         }}
                     >
                         <div
@@ -95,7 +112,98 @@ const ProdPerf = () => {
                             />
                             <PCButton type="primary">Search</PCButton>
                         </div>
-                        <IconFilter style={{ fontSize: 20 }} />
+                        <IconFilter
+                            style={{ fontSize: 20 }}
+                            onClick={() => {
+                                setShowDropdown(!showDropdown);
+                            }}
+                        />
+                        <Dropdown
+                            clickOtherToClose={true}
+                            isStopTouchEl={(target) => {
+                                const selectNode = document.querySelector(".select-customize");
+                                return selectNode?.contains(target) as boolean;
+                            }}
+                            showDropdown={showDropdown}
+                            onOptionChange={handleShowChange}
+                            onCancel={() => setShowDropdown(false)}
+                        >
+                            <SelectCustomize filterValue={filterValue} setFilterValue={setFilterValue} handleConfirm={handleFilter} />
+                        </Dropdown>
+                    </div>
+                    <div
+                        style={{
+                            height: 22,
+                            backgroundColor: "#FFFFFF",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                        }}
+                    >
+                        <div
+                            style={{
+                                color: "#1D2129",
+                                fontSize: 14,
+                                fontWeight: 500,
+                            }}
+                        >
+                            {filterValue?.startTime && filterValue?.endTime
+                                ? `Select: ${pacificTime(filterValue?.startTime).format("MM-DD-YYYY")},${pacificTime(filterValue?.endTime).format("MM-DD-YYYY")}`
+                                : `${
+                                      pacificTime().startOf("day").format("MM-DD-YYYY") ==
+                                      pacificTime(filterValue?.startTime || filterValue.singleTime)
+                                          .startOf("day")
+                                          .format("MM-DD-YYYY")
+                                          ? "Today "
+                                          : ""
+                                  }${pacificTime(filterValue?.startTime || filterValue.singleTime).format("MM-DD-YYYY")}`}
+                        </div>
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                            }}
+                        >
+                            {!filterValue?.endTime && (
+                                <IconLeft
+                                    style={{
+                                        color: "#4E5969",
+                                    }}
+                                    onClick={() => {
+                                        const new_singleTime = pacificTime(filterValue?.startTime || filterValue.singleTime)
+                                            .subtract(1, "day")
+                                            .valueOf();
+                                        setFilterValue({ ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                        getTopProductList(searchOption, { ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                    }}
+                                />
+                            )}
+                            {!filterValue?.endTime && (
+                                <IconRight
+                                    style={{
+                                        color:
+                                            pacificTime(filterValue.startTime || filterValue.singleTime)
+                                                .startOf("day")
+                                                .valueOf() < pacificTime().startOf("day").valueOf()
+                                                ? "#4E5969"
+                                                : "#4E59694D",
+                                    }}
+                                    onClick={() => {
+                                        if (
+                                            pacificTime(filterValue.startTime || filterValue.singleTime)
+                                                .startOf("day")
+                                                .valueOf() < pacificTime().startOf("day").valueOf()
+                                        ) {
+                                            const new_singleTime = pacificTime(filterValue?.startTime || filterValue.singleTime)
+                                                .add(1, "day")
+                                                .valueOf();
+                                            setFilterValue({ ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                            getTopProductList(searchOption, { ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                        }
+                                    }}
+                                />
+                            )}
+                        </div>
                     </div>
                 </div>
             </Sticky>

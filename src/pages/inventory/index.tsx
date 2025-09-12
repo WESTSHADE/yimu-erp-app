@@ -32,21 +32,29 @@ const Inventory = () => {
     };
 
     const debouncedSearch = useRef(
-        debounce((searchParams: string) => {
-            getInventoryList({ ...searchOption, search: searchParams });
+        debounce(async (searchParams: string) => {
+            if (searchOption.listType == 1) await getInventoryList({ ...searchOption, search: searchParams });
+            else await getOutboundsList({ ...searchOption, search: searchParams });
         }, 800)
     ).current;
 
     const getOutboundsList = async (searchOption: Inventory.searchOption) => {
         setLoading(true);
-        const { warehouseSearchType } = searchOption;
+        const { warehouseSearchType, search } = searchOption;
         let filter = `pagination[page]=${1}&pagination[pageSize]=10000`;
         if (warehouseSearchType != "all") {
             filter += `&warehouse=${warehouseSearchType}`;
         }
         await waitingDeliveriesOutbounds(filter)
             .then((res) => {
-                setOutboundsList(res.data);
+                let new_outboundsList = [...res.data];
+                if (search) {
+                    new_outboundsList = new_outboundsList.filter((item) => {
+                        const list = item.split("/");
+                        if (list[0].includes[search] || list[1].includes[search] || list[2].includes[search]) return item;
+                    });
+                }
+                setOutboundsList(new_outboundsList);
             })
             .catch(() => {});
         setLoading(false);
