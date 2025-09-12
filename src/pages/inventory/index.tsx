@@ -52,6 +52,7 @@ const Inventory = () => {
                     new_outboundsList = new_outboundsList.filter((item) => {
                         const list = item.split("/");
                         if (list[0].includes[search] || list[1].includes[search] || list[2].includes[search]) return item;
+                        else return false;
                     });
                 }
                 setOutboundsList(new_outboundsList);

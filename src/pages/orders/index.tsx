@@ -285,6 +285,7 @@ const Orders = () => {
                                         navigate("/orders/detail", {
                                             state: {
                                                 ordersDetail: item,
+                                                pageType: "orders",
                                             },
                                         });
                                     }}

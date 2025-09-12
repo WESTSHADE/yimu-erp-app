@@ -49,10 +49,11 @@ const OrdersDetail = () => {
     const location: {
         state: {
             ordersDetail: ORDERS.order;
+            pageType: "home" | "orders";
         };
     } = useLocation();
     const navigator = useNavigate();
-    const { ordersDetail } = location.state;
+    const { ordersDetail, pageType } = location.state;
 
     useEffect(() => {}, []);
 
@@ -117,7 +118,8 @@ const OrdersDetail = () => {
                 <NavBar
                     ref={navBarRef}
                     onClickLeft={() => {
-                        navigator("/orders");
+                        if (pageType == "orders") navigator("/orders");
+                        else navigator("/home");
                     }}
                     fixed={false}
                     hasBottomLine={false}

@@ -451,6 +451,14 @@ const Home = () => {
                                         style={{
                                             padding: "12px 0",
                                         }}
+                                        onClick={() => {
+                                            navigate("/orders/detail", {
+                                                state: {
+                                                    ordersDetail: item,
+                                                    pageType: "home",
+                                                },
+                                            });
+                                        }}
                                     >
                                         <div style={{ display: "flex", justifyContent: "space-between", gap: "8px" }}>
                                             <div style={{ flex: 1 }}>
