@@ -55,7 +55,7 @@ const ProdPerf = () => {
                 new_topProductList = [...new_topProductList].filter((item) => (item.name || "").includes(search));
             }
             if (filterValue.sortType) {
-                new_topProductList = new_topProductList.sort((a, b) => a[filterValue.sortType as "sold" | "netSales"] - b[filterValue.sortType as "sold" | "netSales"]);
+                new_topProductList = new_topProductList.sort((a, b) => b[filterValue.sortType as "sold" | "netSales"] - a[filterValue.sortType as "sold" | "netSales"]);
             }
             setTopProductList(new_topProductList);
             setLoading(false);
