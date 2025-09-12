@@ -219,7 +219,7 @@ const SelectCustomize: React.FC<propType> = (props) => {
                         onClick={() => {
                             setStartTime(undefined);
                             setEndTime(undefined);
-                            handleConfirm({ ...filterValueInit, startTime: undefined, endTime: undefined, singleTime: pacificTime().valueOf(), timeSelect: "" });
+                            handleConfirm({ ...filterValueInit, startTime: undefined, endTime: undefined, singleTime: pacificTime().valueOf(), timeSelect: "", sortType: "sold" });
                         }}
                     >
                         Reset
