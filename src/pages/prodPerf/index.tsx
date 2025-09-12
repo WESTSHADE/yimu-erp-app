@@ -54,6 +54,9 @@ const ProdPerf = () => {
             if (search) {
                 new_topProductList = [...new_topProductList].filter((item) => (item.name || "").includes(search));
             }
+            if (filterValue.sortType) {
+                new_topProductList = new_topProductList.sort((a, b) => a[filterValue.sortType as "sold" | "netSales"] - b[filterValue.sortType as "sold" | "netSales"]);
+            }
             setTopProductList(new_topProductList);
             setLoading(false);
         });
@@ -128,7 +131,7 @@ const ProdPerf = () => {
                             onOptionChange={handleShowChange}
                             onCancel={() => setShowDropdown(false)}
                         >
-                            <SelectCustomize filterValue={filterValue} setFilterValue={setFilterValue} handleConfirm={handleFilter} />
+                            <SelectCustomize filterValue={filterValue} setFilterValue={setFilterValue} handleConfirm={handleFilter} pageType={"prod"} />
                         </Dropdown>
                     </div>
                     <div

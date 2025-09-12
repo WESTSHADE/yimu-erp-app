@@ -11,9 +11,10 @@ interface propType {
     filterValue: GLOBAL.filterType;
     setFilterValue: (_value: GLOBAL.filterType) => void;
     handleConfirm: (_filterValue: GLOBAL.filterType) => void;
+    pageType: "prod" | "home" | "orders" | "inventory";
 }
 const SelectCustomize: React.FC<propType> = (props) => {
-    const { filterValue, setFilterValue, handleConfirm } = props;
+    const { filterValue, setFilterValue, handleConfirm, pageType } = props;
     const [picker1Visible, setPicker1Visible] = useState<boolean>(false);
     const [picker2Visible, setPicker2Visible] = useState<boolean>(false);
     const [startTime, setStartTime] = useState<number | undefined>(filterValue?.startTime || undefined);
@@ -144,6 +145,70 @@ const SelectCustomize: React.FC<propType> = (props) => {
                     />
                 </Col>
             </Row>
+            {pageType && pageType == "prod" && (
+                <Row
+                    style={{
+                        marginBottom: 16,
+                    }}
+                >
+                    <Col>
+                        <div
+                            style={{
+                                color: "#1D2129",
+                                fontSize: 14,
+                                fontWeight: 500,
+                                marginBottom: 8,
+                            }}
+                        >
+                            Sort
+                        </div>
+                    </Col>
+                    <Col>
+                        <Row gutter={[8, 0]}>
+                            <Col span={12}>
+                                <Button
+                                    style={
+                                        filterValue.sortType == "sold"
+                                            ? {
+                                                  width: "100%",
+                                                  backgroundColor: "#E8F3FF",
+                                                  color: "#165DFF",
+                                              }
+                                            : { width: "100%" }
+                                    }
+                                    type="secondary"
+                                    onClick={() => {
+                                        setFilterValue({ ...filterValueInit, sortType: "sold" });
+                                        handleConfirm({ ...filterValueInit, sortType: "sold" });
+                                    }}
+                                >
+                                    By Items Sold
+                                </Button>
+                            </Col>
+                            <Col span={12}>
+                                <Button
+                                    type="secondary"
+                                    style={
+                                        filterValue.sortType == "netSales"
+                                            ? {
+                                                  width: "100%",
+                                                  backgroundColor: "#E8F3FF",
+                                                  color: "#165DFF",
+                                              }
+                                            : { width: "100%" }
+                                    }
+                                    onClick={() => {
+                                        setFilterValue({ ...filterValueInit, sortType: "netSales" });
+                                        handleConfirm({ ...filterValueInit, sortType: "netSales" });
+                                    }}
+                                >
+                                    By Net Sales
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+            )}
             <Row gutter={[8, 0]}>
                 <Col span={12}>
                     <Button

@@ -347,7 +347,7 @@ const Home = () => {
                             onOptionChange={handleShowChange}
                             onCancel={() => setShowDropdown(false)}
                         >
-                            <SelectCustomize filterValue={filterValue} setFilterValue={setFilterValue} handleConfirm={getOrdersList} />
+                            <SelectCustomize filterValue={filterValue} setFilterValue={setFilterValue} handleConfirm={getOrdersList} pageType="home" />
                         </Dropdown>
                     </div>
                 </div>

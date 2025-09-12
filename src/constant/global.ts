@@ -22,4 +22,5 @@ export const filterValueInit = {
     startTime: undefined,
     endTime: undefined,
     singleTime: pacificTime().valueOf(),
+    sortType: "sold",
 };

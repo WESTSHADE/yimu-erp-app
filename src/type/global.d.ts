@@ -55,5 +55,6 @@ declare namespace GLOBAL {
         startTime: number | undefined;
         endTime: number | undefined;
         singleTime: number;
+        sortType?: string;
     };
 }

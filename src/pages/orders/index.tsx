@@ -171,7 +171,7 @@ const Orders = () => {
                             onOptionChange={handleShowChange}
                             onCancel={() => setShowDropdown(false)}
                         >
-                            <SelectCustomize filterValue={filterValue} setFilterValue={setFilterValue} handleConfirm={handleFilter} />
+                            <SelectCustomize filterValue={filterValue} setFilterValue={setFilterValue} handleConfirm={handleFilter} pageType="orders" />
                         </Dropdown>
                     </div>
                     <div
