@@ -9,6 +9,9 @@
     src: url("./pingFangSc-medium.otf");
     font-weight: 500;
 }
+* {
+    box-sizing: border-box;
+}
 
 :root {
     --primary-font-family: "PingFang SC", "Microsoft YaHei", sans-serif;

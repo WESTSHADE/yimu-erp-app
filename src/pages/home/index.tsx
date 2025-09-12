@@ -260,7 +260,7 @@ const Home = () => {
             <Sticky topOffset={0} getScrollContainer={() => document.getElementById("main-scroll-container") || window}>
                 <div
                     style={{
-                        height: 22,
+                        height: 54,
                         backgroundColor: "#FFFFFF",
                         padding: 16,
                         display: "flex",
@@ -334,7 +334,7 @@ const Home = () => {
                         <IconFilter
                             style={{ fontSize: 20, marginLeft: 10 }}
                             onClick={() => {
-                                setShowDropdown(true);
+                                setShowDropdown(!showDropdown);
                             }}
                         />
                         <Dropdown

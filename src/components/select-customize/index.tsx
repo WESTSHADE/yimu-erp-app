@@ -66,7 +66,7 @@ const SelectCustomize: React.FC<propType> = (props) => {
                 className="select-customize"
                 visible={picker1Visible}
                 maskClosable
-                currentTs={startTime}
+                currentTs={startTime || pacificTime().valueOf()}
                 mode="date"
                 onHide={() => {
                     setPicker1Visible(false);
@@ -89,7 +89,7 @@ const SelectCustomize: React.FC<propType> = (props) => {
                 visible={picker2Visible}
                 maskClosable
                 disabled={false}
-                currentTs={endTime}
+                currentTs={endTime || pacificTime().valueOf()}
                 mode="date"
                 onHide={() => {
                     setPicker2Visible(false);

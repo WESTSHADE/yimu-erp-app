@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode, useRef } from "react";
-import { Sticky } from "@arco-design/mobile-react";
-import { IconCheckCircle, IconClockCircle, IconFilter, IconCloseCircle, IconInfoCircle, IconLoading, IconStop } from "@arco-design/web-react/icon";
+import { Sticky, Dropdown } from "@arco-design/mobile-react";
+import { IconCheckCircle, IconClockCircle, IconFilter, IconCloseCircle, IconInfoCircle, IconLoading, IconStop, IconLeft, IconRight } from "@arco-design/web-react/icon";
 import { getOrders } from "../../api/orders";
 import { debounce } from "lodash";
 import { IconArrowIn } from "@arco-design/mobile-react/esm/icon";
@@ -12,6 +12,8 @@ import { OrderStatusList } from "../../constant/orders";
 import { formatMoney, formatToLocalTime } from "../../utils/format";
 import { pacificTime } from "../../utils/dayjs";
 import { DataType } from "@arco-design/web-react/es/Descriptions/interface";
+import SelectCustomize from "../../components/select-customize";
+import { filterValueInit } from "../../constant/global";
 const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
     pending: (
         <span style={{ color: "#FF7D00" }}>
@@ -52,8 +54,10 @@ const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
 };
 const Orders = () => {
     const navigate = useNavigate();
+    const [showDropdown, setShowDropdown] = useState<boolean>(false);
     const [ordersList, setOrdersList] = useState<ORDERS.order[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [filterValue, setFilterValue] = useState<GLOBAL.filterType>(filterValueInit);
     const [searchOption, setSearchOption] = useState<ORDERS.searchOption>({
         page: 1,
         pageSize: 10,
@@ -61,8 +65,22 @@ const Orders = () => {
         reset: true,
         search: "",
     });
-    const getOrdersList = async (searchOption: ORDERS.searchOption) => {
+    const handleShowChange = () => {
+        setShowDropdown(!showDropdown);
+    };
+    const handleFilter = async (filterValue: GLOBAL.filterType) => {
+        setFilterValue(filterValue);
+        await getOrdersList(searchOption, filterValue);
+    };
+    const getOrdersList = async (searchOption: ORDERS.searchOption, filterValue: GLOBAL.filterType) => {
         const { status, reset, search } = searchOption;
+        const currentDate = filterValue.startTime
+            ? filterValue.endTime
+                ? [filterValue.startTime, filterValue.endTime]
+                : [filterValue.startTime, filterValue.startTime]
+            : [filterValue.singleTime, filterValue.singleTime];
+        const startTime = pacificTime(currentDate[0]).startOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        const endDate = pacificTime(currentDate[1]).endOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
         setLoading(true);
         let filter = "&field=date&direction=desc";
         if (status)
@@ -72,28 +90,27 @@ const Orders = () => {
                     : `&orderStatus=${JSON.stringify({
                           is: status,
                       })}`;
-        await getOrders(pacificTime("2025-06-01").startOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"), pacificTime().endOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"), 1, 20, filter).then(
-            (res) => {
-                let new_ordersList = [];
-                if (!reset) new_ordersList = [...ordersList, ...res.dataSummary];
-                else new_ordersList = [...res.dataSummary];
-                if (search) {
-                    new_ordersList = [...new_ordersList].filter((item) => String(item.id).includes(search));
-                }
-                setOrdersList(new_ordersList);
-                setLoading(false);
+        await getOrders(startTime, endDate, 1, 20, filter).then((res) => {
+            let new_ordersList = [];
+            if (!reset) new_ordersList = [...ordersList, ...res.dataSummary];
+            else new_ordersList = [...res.dataSummary];
+            if (search) {
+                new_ordersList = [...new_ordersList].filter((item) => String(item.id).includes(search));
             }
-        );
+            setOrdersList(new_ordersList);
+            setLoading(false);
+        });
+        setShowDropdown(false);
     };
 
     const debouncedSearch = useRef(
         debounce(async (searchParams: string) => {
-            await getOrdersList({ ...searchOption, search: searchParams });
+            await getOrdersList({ ...searchOption, search: searchParams }, filterValue);
         }, 800)
     ).current;
 
     useEffect(() => {
-        getOrdersList(searchOption);
+        getOrdersList(searchOption, filterValue);
     }, []);
 
     return (
@@ -112,6 +129,7 @@ const Orders = () => {
                             display: "flex",
                             alignItems: "center",
                             gap: 10,
+                            marginBottom: 12,
                         }}
                     >
                         <div
@@ -137,9 +155,101 @@ const Orders = () => {
                             />
                             <PCButton type="primary">Search</PCButton>
                         </div>
-                        <IconFilter style={{ fontSize: 20 }} />
+                        <IconFilter
+                            style={{ fontSize: 20 }}
+                            onClick={() => {
+                                setShowDropdown(!showDropdown);
+                            }}
+                        />
+                        <Dropdown
+                            clickOtherToClose={true}
+                            isStopTouchEl={(target) => {
+                                const selectNode = document.querySelector(".select-customize");
+                                return selectNode?.contains(target) as boolean;
+                            }}
+                            showDropdown={showDropdown}
+                            onOptionChange={handleShowChange}
+                            onCancel={() => setShowDropdown(false)}
+                        >
+                            <SelectCustomize filterValue={filterValue} setFilterValue={setFilterValue} handleConfirm={handleFilter} />
+                        </Dropdown>
                     </div>
-                    <div style={{ overflowX: "auto", width: "100%", whiteSpace: "nowrap" }}>
+                    <div
+                        style={{
+                            height: 22,
+                            backgroundColor: "#FFFFFF",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            marginBottom: 12,
+                        }}
+                    >
+                        <div
+                            style={{
+                                color: "#1D2129",
+                                fontSize: 14,
+                                fontWeight: 500,
+                            }}
+                        >
+                            {filterValue?.startTime && filterValue?.endTime
+                                ? `Select: ${pacificTime(filterValue?.startTime).format("MM-DD-YYYY")},${pacificTime(filterValue?.endTime).format("MM-DD-YYYY")}`
+                                : `${
+                                      pacificTime().startOf("day").format("MM-DD-YYYY") ==
+                                      pacificTime(filterValue?.startTime || filterValue.singleTime)
+                                          .startOf("day")
+                                          .format("MM-DD-YYYY")
+                                          ? "Today "
+                                          : ""
+                                  }${pacificTime(filterValue?.startTime || filterValue.singleTime).format("MM-DD-YYYY")}`}
+                        </div>
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                            }}
+                        >
+                            {!filterValue?.endTime && (
+                                <IconLeft
+                                    style={{
+                                        color: "#4E5969",
+                                    }}
+                                    onClick={() => {
+                                        const new_singleTime = pacificTime(filterValue?.startTime || filterValue.singleTime)
+                                            .subtract(1, "day")
+                                            .valueOf();
+                                        setFilterValue({ ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                        getOrdersList(searchOption, { ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                    }}
+                                />
+                            )}
+                            {!filterValue?.endTime && (
+                                <IconRight
+                                    style={{
+                                        color:
+                                            pacificTime(filterValue.startTime || filterValue.singleTime)
+                                                .startOf("day")
+                                                .valueOf() < pacificTime().startOf("day").valueOf()
+                                                ? "#4E5969"
+                                                : "#4E59694D",
+                                    }}
+                                    onClick={() => {
+                                        if (
+                                            pacificTime(filterValue.startTime || filterValue.singleTime)
+                                                .startOf("day")
+                                                .valueOf() < pacificTime().startOf("day").valueOf()
+                                        ) {
+                                            const new_singleTime = pacificTime(filterValue?.startTime || filterValue.singleTime)
+                                                .add(1, "day")
+                                                .valueOf();
+                                            setFilterValue({ ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                            getOrdersList(searchOption, { ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                        }
+                                    }}
+                                />
+                            )}
+                        </div>
+                    </div>
+                    <div style={{ overflowX: "auto", width: "100%", whiteSpace: "nowrap", display: "flex" }}>
                         {[{ label: "All", value: "all" }, ...OrderStatusList].map((item) => {
                             return (
                                 <PCButton
@@ -147,7 +257,7 @@ const Orders = () => {
                                     style={searchOption.status == item.value ? { marginRight: 8, backgroundColor: "#E8F3FF", color: "#165DFF" } : { marginRight: 8 }}
                                     onClick={async () => {
                                         setSearchOption({ ...searchOption, status: item.value });
-                                        await getOrdersList({ ...searchOption, status: item.value });
+                                        await getOrdersList({ ...searchOption, status: item.value }, filterValue);
                                     }}
                                 >
                                     {item.label}

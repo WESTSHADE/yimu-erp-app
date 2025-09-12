@@ -40,3 +40,13 @@ export const stockStatusOptions = [
         tag: "gray",
     },
 ];
+export const tabsList = [
+    {
+        label: "All Product Information",
+        value: 1,
+    },
+    {
+        label: "Outbound Business Flow",
+        value: 2,
+    },
+];

@@ -6,6 +6,7 @@ declare namespace Inventory {
         warehouseSearchType: string;
         search: string;
         stockStatus: string[];
+        listType: 1 | 2;
     };
 
     type composite = {
