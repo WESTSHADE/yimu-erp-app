@@ -49,4 +49,11 @@ declare namespace GLOBAL {
         height?: number;
         originFile?: File;
     };
+
+    type filterType = {
+        timeSelect: string;
+        startTime: number | undefined;
+        endTime: number | undefined;
+        singleTime: number;
+    };
 }

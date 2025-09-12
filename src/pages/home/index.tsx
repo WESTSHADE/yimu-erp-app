@@ -2,19 +2,21 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconArrowIn } from "@arco-design/mobile-react/esm/icon";
 import { Sticky, Dropdown } from "@arco-design/mobile-react";
-import { Card, Grid, List, Button as PCButton, Table, TableColumnProps, Descriptions } from "@arco-design/web-react";
+import { Card, Grid, List, Button as PCButton, Spin, Table, TableColumnProps, Descriptions } from "@arco-design/web-react";
 import { REALTIME_STATISTICS_LIST } from "../../constant/home";
-import { IconCheckCircle, IconClockCircle, IconFilter, IconLeft, IconRight, IconCloseCircle, IconInfoCircle, IconLoading, IconStop, IconPlus } from "@arco-design/web-react/icon";
+import { IconCheckCircle, IconClockCircle, IconFilter, IconLeft, IconRight, IconCloseCircle, IconInfoCircle, IconLoading, IconStop, IconPlus, IconMinus } from "@arco-design/web-react/icon";
+import { DataType } from "@arco-design/web-react/es/Descriptions/interface";
 // utils
-import { Dayjs } from "dayjs";
 import { calculatePercentage } from "../../utils/tool";
 import { pacificTime } from "../../utils/dayjs";
 import { formatMoney, formatToLocalTime } from "../../utils/format";
 // api
 import { getOverviewMobile, getOverviewOrders } from "../../api/home";
+import { getOverviewProduct } from "../../api/prod";
 // css
 import "../home/index.css";
-import { DataType } from "@arco-design/web-react/es/Descriptions/interface";
+import SelectCustomize from "../../components/select-customize";
+import { filterValueInit } from "../../constant/global";
 
 const { Row, Col } = Grid;
 const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
@@ -66,8 +68,9 @@ const Home = () => {
     const navigate = useNavigate();
     const [overviewList, setOverviewList] = useState<HOME.overview[]>([]);
     const [showDropdown, setShowDropdown] = useState<boolean>(false);
-    const [dateRange, setDateRange] = useState<[Dayjs | undefined, Dayjs | undefined]>([undefined, undefined]);
-    const [comparisonRange, setComparisonRange] = useState<[Dayjs | undefined, Dayjs | undefined]>([undefined, undefined]);
+    const [filterValue, setFilterValue] = useState<GLOBAL.filterType>(filterValueInit);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [topProductList, setTopProductList] = useState<PROD.topProducts[]>([]);
     const [currentRealTime, setCurrentRealTime] = useState<HOME.ordersTotals>(initRealTime);
     const [compareRealTime, setCompareRealTime] = useState<HOME.ordersTotals>(initRealTime);
     const [ordersList, setOrdersList] = useState<ORDERS.order[]>([]);
@@ -113,10 +116,10 @@ const Home = () => {
                                 height: "14px",
                                 verticalAlign: "center",
                                 alignItems: "center",
-                                color: Number(record[key].vs) > 0 ? "#009A29" : "#CB272D",
+                                color: Number(record[key].vs) >= 0 ? "#009A29" : "#CB272D",
                             }}
                         >
-                            <IconPlus style={{ color: Number(record[key].vs) > 0 ? "#009A29" : "#CB272D", fontSize: 10 }} />
+                            {Number(record[key].vs) >= 0 ? <IconPlus style={{ color: "#009A29", fontSize: 10 }} /> : <IconMinus style={{ color: "#CB272D", fontSize: 10 }} />}
                             <div style={{ fontSize: 10 }}>{Math.abs(Number(record[key].vs)) + "%"}</div>
                         </div>
                     </div>
@@ -186,24 +189,32 @@ const Home = () => {
         },
     ];
 
-    const getOrdersList = async () => {
-        const startTime = pacificTime(dateRange[0] || pacificTime())
-            .startOf("day")
-            .utc()
-            .format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
-        const endDate = pacificTime(dateRange[1] || pacificTime())
-            .endOf("day")
-            .utc()
-            .format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
-        const compareStartTime = pacificTime(comparisonRange[0]).startOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
-        const compareEndDate = pacificTime(comparisonRange[1]).endOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+    const getOrdersList = async (filterValue: GLOBAL.filterType) => {
+        setFilterValue(filterValue);
+        const currentDate = filterValue.startTime
+            ? filterValue.endTime
+                ? [filterValue.startTime, filterValue.endTime]
+                : [filterValue.startTime, filterValue.startTime]
+            : [filterValue.singleTime, filterValue.singleTime];
+        const daysDifference = pacificTime(currentDate[1]).endOf("day").diff(pacificTime(currentDate[0]).startOf("day"), "day") + 1;
+        const compareDate = [pacificTime(currentDate[0]).subtract(daysDifference, "day"), pacificTime(currentDate[1]).subtract(daysDifference, "day")];
+        const startTime = pacificTime(currentDate[0]).startOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        const endDate = pacificTime(currentDate[1]).endOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        const compareStartTime = pacificTime(compareDate[0]).startOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        const compareEndDate = pacificTime(compareDate[1]).endOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
         await getOverviewOrders(startTime, endDate, 1, 8).then((res) => {
-            setOrdersList(res.dateSummary);
+            setOrdersList(res.dataSummary);
             setCurrentRealTime(res.totals);
         });
-        await getOverviewOrders(compareStartTime, compareEndDate, 1, 8).then((res) => {
+        await getOverviewOrders(compareStartTime, compareEndDate, 1, 5).then((res) => {
             setCompareRealTime(res.totals);
         });
+        await getOverviewProduct(startTime, endDate, 8).then((res) => {
+            setTopProductList(res.rankings.topProducts);
+            setLoading(false);
+        });
+        setShowDropdown(false);
+        setLoading(false);
     };
 
     const getOverviewMobileData = async () => {
@@ -226,10 +237,9 @@ const Home = () => {
     };
 
     useEffect(() => {
-        getOrdersList();
+        getOrdersList(filterValue);
         getOverviewMobileData();
     }, []);
-
     return (
         <div>
             <div style={{ padding: 16 }}>
@@ -258,22 +268,6 @@ const Home = () => {
                         alignItems: "center",
                     }}
                 >
-                    {/* <SearchBar
-                        prefix={null}
-                        style={{ padding: 0, flex: 1, height: 32 }}
-                        actionButton={
-                            <MobileButton
-                                needActive
-                                style={{
-                                    width: 77,
-                                    height: 32,
-                                    fontSize: 14,
-                                }}
-                            >
-                                Search
-                            </MobileButton>
-                        }
-                    /> */}
                     <div
                         style={{
                             color: "#1D2129",
@@ -281,7 +275,16 @@ const Home = () => {
                             fontWeight: 500,
                         }}
                     >
-                        {dateRange[0] ? `${dateRange[0]}-${dateRange[1]}` : `Today ${pacificTime().format("MM-DD-YYYY")}`}
+                        {filterValue?.startTime && filterValue?.endTime
+                            ? `Select: ${pacificTime(filterValue?.startTime).format("MM-DD-YYYY")},${pacificTime(filterValue?.endTime).format("MM-DD-YYYY")}`
+                            : `${
+                                  pacificTime().startOf("day").format("MM-DD-YYYY") ==
+                                  pacificTime(filterValue?.startTime || filterValue.singleTime)
+                                      .startOf("day")
+                                      .format("MM-DD-YYYY")
+                                      ? "Today "
+                                      : ""
+                              }${pacificTime(filterValue?.startTime || filterValue.singleTime).format("MM-DD-YYYY")}`}
                     </div>
                     <div
                         style={{
@@ -289,162 +292,301 @@ const Home = () => {
                             alignItems: "center",
                         }}
                     >
-                        <IconLeft />
-                        <IconRight style={{}} />
+                        {!filterValue?.endTime && (
+                            <IconLeft
+                                style={{
+                                    color: "#4E5969",
+                                }}
+                                onClick={() => {
+                                    const new_singleTime = pacificTime(filterValue?.startTime || filterValue.singleTime)
+                                        .subtract(1, "day")
+                                        .valueOf();
+                                    setFilterValue({ ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                    getOrdersList({ ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                }}
+                            />
+                        )}
+                        {!filterValue?.endTime && (
+                            <IconRight
+                                style={{
+                                    color:
+                                        pacificTime(filterValue.startTime || filterValue.singleTime)
+                                            .startOf("day")
+                                            .valueOf() < pacificTime().startOf("day").valueOf()
+                                            ? "#4E5969"
+                                            : "#4E59694D",
+                                }}
+                                onClick={() => {
+                                    if (
+                                        pacificTime(filterValue.startTime || filterValue.singleTime)
+                                            .startOf("day")
+                                            .valueOf() < pacificTime().startOf("day").valueOf()
+                                    ) {
+                                        const new_singleTime = pacificTime(filterValue?.startTime || filterValue.singleTime)
+                                            .add(1, "day")
+                                            .valueOf();
+                                        setFilterValue({ ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                        getOrdersList({ ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                    }
+                                }}
+                            />
+                        )}
                         <IconFilter
                             style={{ fontSize: 20, marginLeft: 10 }}
                             onClick={() => {
                                 setShowDropdown(true);
                             }}
                         />
-                        <Dropdown showDropdown={showDropdown} onOptionChange={handleShowChange} onCancel={() => setShowDropdown(false)} preventBodyScroll={true}>
-                            <Card
-                                style={{
-                                    marginTop: "16px",
-                                    borderTop: "1px solid #F2F3F5",
-                                }}
-                                bordered={false}
-                            >
-                                <div
-                                    style={{
-                                        color: "#1D2129",
-                                        fontSize: 14,
-                                        fontWeight: 500,
-                                    }}
-                                >
-                                    Payment Date
-                                </div>
-                            </Card>
+                        <Dropdown
+                            clickOtherToClose={true}
+                            isStopTouchEl={(target) => {
+                                const selectNode = document.querySelector(".select-customize");
+                                return selectNode?.contains(target) as boolean;
+                            }}
+                            showDropdown={showDropdown}
+                            onOptionChange={handleShowChange}
+                            onCancel={() => setShowDropdown(false)}
+                        >
+                            <SelectCustomize filterValue={filterValue} setFilterValue={setFilterValue} handleConfirm={getOrdersList} />
                         </Dropdown>
                     </div>
                 </div>
             </Sticky>
-            <div
+            <Spin
+                loading={loading}
                 style={{
-                    padding: 16,
+                    display: "block",
                 }}
             >
-                <Card bordered={false}>
-                    <Row
-                        gutter={[12, 16]}
-                        style={{
-                            display: "flex",
-                            alignItems: "stretch",
-                        }}
-                    >
-                        {REALTIME_STATISTICS_LIST.map((item) => {
-                            return (
-                                <Col span={item.span} key={item.key}>
-                                    <Card
-                                        bordered={false}
-                                        style={{
-                                            backgroundColor: `${item.color}`,
-                                        }}
-                                        bodyStyle={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            justifyContent: "space-between",
-                                        }}
-                                    >
-                                        <div style={{ color: "#1D2129", fontWeight: 500 }}>{item.title}</div>
-
-                                        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                                            <div
-                                                style={{
-                                                    display: "flex",
-                                                    justifyContent: "space-between",
-                                                }}
-                                            >
-                                                <div style={{ color: "#1D2129", fontWeight: 500, fontSize: 22 }}>
-                                                    {item.type == "$" ? formatMoney(currentRealTime[item.key] || 0) : currentRealTime[item.key] || 0}
-                                                </div>
-                                                <div>{calculatePercentage(Number(currentRealTime[item.key] || 0), Number(compareRealTime[item.key]) || 0)}</div>
-                                            </div>
-                                            <div style={{ color: "#86909C", fontSize: 14 }}>{item.type == "$" ? formatMoney(currentRealTime[item.key] || 0) : currentRealTime[item.key] || 0}</div>
-                                        </div>
-                                    </Card>
-                                </Col>
-                            );
-                        })}
-                    </Row>
-                </Card>
-            </div>
-            <div style={{ padding: "0 16px" }}>
                 <div
                     style={{
-                        color: "#1D2129",
-                        fontSize: 16,
-                        fontWeight: 500,
+                        padding: 16,
                     }}
                 >
-                    Most Recent Orders
-                </div>
-                <Card style={{ margin: "12px 0 16px 0" }} bordered={false} bodyStyle={{ padding: "0px 14px" }}>
-                    <List
-                        bordered={false}
-                        size={"small"}
-                        header={null}
-                        dataSource={ordersList}
-                        render={(item, index) => {
-                            const orderData: DataType = [
-                                { label: "Payment Date", value: item.paymentTime ? formatToLocalTime(item.paymentTime, "MM-DD-YYYY HH:mm:ss") : "" },
-                                { label: "Status", value: StatusMap[item.status as ORDERS.OrderStatus] ? StatusMap[item.status as ORDERS.OrderStatus] : <></> },
-                            ];
-                            return (
-                                <List.Item
-                                    key={index}
-                                    style={{
-                                        padding: "12px 0",
-                                    }}
-                                >
-                                    <div style={{ display: "flex", justifyContent: "space-between", gap: "8px" }}>
-                                        <div style={{ flex: 1 }}>
-                                            <div
-                                                style={{
-                                                    display: "flex",
-                                                    width: "100%",
-                                                    justifyContent: "space-between",
-                                                }}
-                                            >
-                                                <div>{`WS${item.id} ${item?.shipping?.firstName || ""} ${item?.shipping?.lastName || ""}`}</div>
-                                                <div>{formatMoney(item.total, 2)}</div>
-                                            </div>
-                                            <Descriptions
-                                                data={orderData}
-                                                column={1}
-                                                labelStyle={{
-                                                    paddingBottom: "4px",
-                                                    height: 22,
-                                                    color: "#86909C",
-                                                    fontWeight: 400,
-                                                }}
-                                                valueStyle={{
-                                                    paddingBottom: "4px",
-                                                    textAlign: "right",
-                                                }}
-                                            />
-                                        </div>
-                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#C9CDD4" }}>
-                                            <IconArrowIn />
-                                        </div>
-                                    </div>
-                                </List.Item>
-                            );
-                        }}
-                    />
-                    <div style={{ display: "flex", height: "max-content", justifyContent: "flex-end", borderTop: "1px solid #E5E6EB" }}>
-                        <PCButton
-                            type="text"
-                            style={{ margin: "5px 0", padding: 0, backgroundColor: "transparent" }}
-                            onClick={() => {
-                                navigate("/orders");
+                    <Card bordered={false}>
+                        <Row
+                            gutter={[12, 16]}
+                            style={{
+                                display: "flex",
+                                alignItems: "stretch",
                             }}
                         >
-                            View all Orders
-                        </PCButton>
+                            {REALTIME_STATISTICS_LIST.map((item) => {
+                                const difference: number = Number(currentRealTime[item.key] || 0) - Number(compareRealTime[item.key] || 0);
+
+                                return (
+                                    <Col span={item.span} key={item.key}>
+                                        <Card
+                                            bordered={false}
+                                            style={{
+                                                backgroundColor: `${item.color}`,
+                                            }}
+                                            bodyStyle={{
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                justifyContent: "space-between",
+                                            }}
+                                        >
+                                            <div style={{ color: "#1D2129", fontWeight: 500 }}>{item.title}</div>
+
+                                            <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                                                <div
+                                                    style={{
+                                                        display: "flex",
+                                                        justifyContent: "space-between",
+                                                    }}
+                                                >
+                                                    <div style={{ color: "#1D2129", fontWeight: 500, fontSize: 22 }}>
+                                                        {item.type == "$" ? formatMoney(currentRealTime[item.key] || 0) : currentRealTime[item.key] || 0}
+                                                    </div>
+                                                    <div>
+                                                        {difference >= 0 ? (
+                                                            <IconPlus style={{ color: "#009A29", fontSize: 10, verticalAlign: "middle" }} />
+                                                        ) : (
+                                                            <IconMinus style={{ color: "#CB272D", fontSize: 10, verticalAlign: "middle" }} />
+                                                        )}
+                                                        <span
+                                                            style={{
+                                                                color: difference >= 0 ? "#009A29" : "#CB272D",
+                                                                marginLeft: 2,
+                                                            }}
+                                                        >
+                                                            {calculatePercentage(Number(currentRealTime[item.key] || 0), Number(compareRealTime[item.key]) || 0) + "%"}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div style={{ color: "#86909C", fontSize: 14 }}>{item.type == "$" ? formatMoney(compareRealTime[item.key] || 0) : compareRealTime[item.key] || 0}</div>
+                                            </div>
+                                        </Card>
+                                    </Col>
+                                );
+                            })}
+                        </Row>
+                    </Card>
+                </div>
+                <div style={{ padding: "0 16px" }}>
+                    <div
+                        style={{
+                            color: "#1D2129",
+                            fontSize: 16,
+                            fontWeight: 500,
+                        }}
+                    >
+                        Most Recent Orders
                     </div>
-                </Card>
-            </div>
+                    <Card style={{ margin: "12px 0 16px 0" }} bordered={false} bodyStyle={{ padding: "0px 14px" }}>
+                        <List
+                            bordered={false}
+                            size={"small"}
+                            header={null}
+                            dataSource={ordersList}
+                            render={(item, index) => {
+                                const orderData: DataType = [
+                                    { label: "Payment Date", value: item.paymentTime ? formatToLocalTime(item.paymentTime, "MM-DD-YYYY HH:mm:ss") : "" },
+                                    { label: "Status", value: StatusMap[item.status as ORDERS.OrderStatus] ? StatusMap[item.status as ORDERS.OrderStatus] : <></> },
+                                ];
+                                return (
+                                    <List.Item
+                                        key={index}
+                                        style={{
+                                            padding: "12px 0",
+                                        }}
+                                    >
+                                        <div style={{ display: "flex", justifyContent: "space-between", gap: "8px" }}>
+                                            <div style={{ flex: 1 }}>
+                                                <div
+                                                    style={{
+                                                        display: "flex",
+                                                        width: "100%",
+                                                        justifyContent: "space-between",
+                                                    }}
+                                                >
+                                                    <div>{`WS${item.id} ${item?.shipping?.firstName || ""} ${item?.shipping?.lastName || ""}`}</div>
+                                                    <div>{formatMoney(item.total, 2)}</div>
+                                                </div>
+                                                <Descriptions
+                                                    data={orderData}
+                                                    column={1}
+                                                    labelStyle={{
+                                                        paddingBottom: "4px",
+                                                        height: 22,
+                                                        color: "#86909C",
+                                                        fontWeight: 400,
+                                                    }}
+                                                    valueStyle={{
+                                                        paddingBottom: "4px",
+                                                        textAlign: "right",
+                                                    }}
+                                                />
+                                            </div>
+                                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#C9CDD4" }}>
+                                                <IconArrowIn />
+                                            </div>
+                                        </div>
+                                    </List.Item>
+                                );
+                            }}
+                        />
+                        <div style={{ display: "flex", height: "max-content", justifyContent: "flex-end", borderTop: "1px solid #E5E6EB" }}>
+                            <PCButton
+                                type="text"
+                                style={{ margin: "5px 0", padding: 0, backgroundColor: "transparent" }}
+                                onClick={() => {
+                                    navigate("/orders");
+                                }}
+                            >
+                                View all Orders
+                            </PCButton>
+                        </div>
+                    </Card>
+                </div>
+                <div style={{ padding: "0 16px" }}>
+                    <div
+                        style={{
+                            color: "#1D2129",
+                            fontSize: 16,
+                            fontWeight: 500,
+                        }}
+                    >
+                        Top products - Items sold
+                    </div>
+                    <Card style={{ margin: "12px 0 16px 0" }} bordered={false} bodyStyle={{ padding: "0px 14px" }}>
+                        <List
+                            bordered={false}
+                            size={"small"}
+                            header={null}
+                            dataSource={topProductList}
+                            render={(item, index) => {
+                                const data = item?.product?.variation || item?.product;
+                                const productData: DataType = [
+                                    {
+                                        label: "Items Sold",
+                                        value: item.sold,
+                                    },
+                                    {
+                                        label: "Net Sales",
+                                        value: formatMoney(item.netSales),
+                                    },
+                                ];
+                                return (
+                                    <List.Item
+                                        key={index}
+                                        style={{
+                                            padding: "12px 0",
+                                        }}
+                                    >
+                                        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                            <img src={data?.image?.src || ""} alt={data?.image?.name || ""} width={40} height={40} />
+                                            <div
+                                                style={{
+                                                    flex: 1,
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        color: "#1D2129",
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
+                                                    {item?.name}
+                                                </div>
+                                                <Descriptions
+                                                    data={productData}
+                                                    column={1}
+                                                    style={{
+                                                        width: "100%",
+                                                    }}
+                                                    labelStyle={{
+                                                        paddingBottom: "4px",
+                                                        height: 22,
+                                                        color: "#86909C",
+                                                        fontWeight: 400,
+                                                    }}
+                                                    valueStyle={{
+                                                        paddingBottom: "4px",
+                                                        textAlign: "right",
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </List.Item>
+                                );
+                            }}
+                        />
+                        <div style={{ display: "flex", height: "max-content", justifyContent: "flex-end", borderTop: "1px solid #E5E6EB" }}>
+                            <PCButton
+                                type="text"
+                                style={{ margin: "5px 0", padding: 0, backgroundColor: "transparent" }}
+                                onClick={() => {
+                                    navigate("/prodPerf");
+                                }}
+                            >
+                                View all products
+                            </PCButton>
+                        </div>
+                    </Card>
+                </div>
+            </Spin>
         </div>
     );
 };

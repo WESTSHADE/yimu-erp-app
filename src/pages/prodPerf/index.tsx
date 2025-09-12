@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 import { Sticky } from "@arco-design/mobile-react";
 import { IconFilter } from "@arco-design/web-react/icon";
@@ -11,7 +10,6 @@ import { DataType } from "@arco-design/web-react/es/Descriptions/interface";
 import { formatMoney } from "../../utils/format";
 
 const ProdPerf = () => {
-    const navigate = useNavigate();
     const [topProductList, setTopProductList] = useState<PROD.topProducts[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [searchOption, setSearchOption] = useState<PROD.searchOption>({

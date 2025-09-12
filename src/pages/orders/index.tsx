@@ -1,9 +1,10 @@
-import { useEffect, useState, type ReactNode } from "react";
-import { SearchBar, Button as MobileButton, Sticky } from "@arco-design/mobile-react";
+import { useEffect, useState, type ReactNode, useRef } from "react";
+import { Sticky } from "@arco-design/mobile-react";
 import { IconCheckCircle, IconClockCircle, IconFilter, IconCloseCircle, IconInfoCircle, IconLoading, IconStop } from "@arco-design/web-react/icon";
 import { getOrders } from "../../api/orders";
+import { debounce } from "lodash";
 import { IconArrowIn } from "@arco-design/mobile-react/esm/icon";
-import { List, Card, Button as PCButton, Spin, Descriptions } from "@arco-design/web-react";
+import { List, Card, Input, Button as PCButton, Spin, Descriptions } from "@arco-design/web-react";
 import { useNavigate } from "react-router-dom";
 // constant
 import { OrderStatusList } from "../../constant/orders";
@@ -52,17 +53,16 @@ const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
 const Orders = () => {
     const navigate = useNavigate();
     const [ordersList, setOrdersList] = useState<ORDERS.order[]>([]);
-    const [scrollLoading, setScrollLoading] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [searchOption, setSearchOption] = useState<ORDERS.searchOption>({
         page: 1,
         pageSize: 10,
         status: "all",
         reset: true,
+        search: "",
     });
     const getOrdersList = async (searchOption: ORDERS.searchOption) => {
-        const { status, reset } = searchOption;
-        setScrollLoading(true);
+        const { status, reset, search } = searchOption;
         setLoading(true);
         let filter = "&field=date&direction=desc";
         if (status)
@@ -74,13 +74,23 @@ const Orders = () => {
                       })}`;
         await getOrders(pacificTime("2025-06-01").startOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"), pacificTime().endOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"), 1, 20, filter).then(
             (res) => {
-                if (!reset) setOrdersList([...ordersList, ...res.dataSummary]);
-                else setOrdersList(res.dataSummary);
-                setScrollLoading(false);
+                let new_ordersList = [];
+                if (!reset) new_ordersList = [...ordersList, ...res.dataSummary];
+                else new_ordersList = [...res.dataSummary];
+                if (search) {
+                    new_ordersList = [...new_ordersList].filter((item) => String(item.id).includes(search));
+                }
+                setOrdersList(new_ordersList);
                 setLoading(false);
             }
         );
     };
+
+    const debouncedSearch = useRef(
+        debounce(async (searchParams: string) => {
+            await getOrdersList({ ...searchOption, search: searchParams });
+        }, 800)
+    ).current;
 
     useEffect(() => {
         getOrdersList(searchOption);
@@ -100,29 +110,36 @@ const Orders = () => {
                         style={{
                             height: 32,
                             display: "flex",
-                            justifyContent: "space-between",
                             alignItems: "center",
+                            gap: 10,
                         }}
                     >
-                        <SearchBar
-                            prefix={null}
-                            style={{ padding: 0, flex: 1, height: 32 }}
-                            actionButton={
-                                <MobileButton
-                                    needActive
-                                    style={{
-                                        width: 77,
-                                        height: 32,
-                                        fontSize: 14,
-                                    }}
-                                >
-                                    Search
-                                </MobileButton>
-                            }
-                        />
-                        <IconFilter style={{ fontSize: 20, marginLeft: 10 }} />
+                        <div
+                            style={{
+                                display: "flex",
+                                flex: 1,
+                                alignItems: "center",
+                            }}
+                        >
+                            <Input
+                                style={{ height: 32 }}
+                                placeholder="Enter Order Id to search"
+                                allowClear
+                                value={searchOption.search}
+                                onClear={() => {
+                                    setSearchOption({ ...searchOption, search: "" });
+                                    debouncedSearch("");
+                                }}
+                                onChange={(value) => {
+                                    setSearchOption({ ...searchOption, search: value });
+                                    debouncedSearch(value);
+                                }}
+                            />
+                            <PCButton type="primary">Search</PCButton>
+                        </div>
+                        <IconFilter style={{ fontSize: 20 }} />
                     </div>
-                    <div style={{ overflowX: "auto", width: "max-content" }}>
+                    <div style={{ overflowX: "auto", width: "100%", whiteSpace: "nowrap" }}>
                         {[{ label: "All", value: "all" }, ...OrderStatusList].map((item) => {
                             return (
                                 <PCButton
@@ -147,11 +164,6 @@ const Orders = () => {
                         size={"small"}
                         header={null}
                         dataSource={ordersList}
-                        scrollLoading={scrollLoading}
-                        onReachBottom={async () => {
-                            await getOrdersList({ ...searchOption, page: searchOption.page + 1 });
-                            setSearchOption({ ...searchOption, page: searchOption.page + 1, reset: false });
-                        }}
                         render={(item, index) => {
                             const orderData: DataType = [
                                 { label: "Payment Date", value: item.paymentTime ? formatToLocalTime(item.paymentTime, "MM-DD-YYYY HH:mm:ss") : "" },

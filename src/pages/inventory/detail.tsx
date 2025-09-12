@@ -78,7 +78,7 @@ const InventoryDetail = () => {
         },
         {
             label: "Product Name - US",
-            value: inventoryDetail?.compositeProductName || "0",
+            value: inventoryDetail?.compositeProductName || "",
         },
         {
             label: "Product Name",

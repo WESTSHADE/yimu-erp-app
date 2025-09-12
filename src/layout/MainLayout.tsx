@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { Layout } from "@arco-design/web-react";
 import Sider from "./Sider";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import enUS from "@arco-design/mobile-utils/esm/locale/en-US";
 
 const Footer = Layout.Footer;
 const Content = Layout.Content;
@@ -36,7 +37,7 @@ const MainLayout = () => {
     }, [location.pathname]);
 
     return (
-        <ContextProvider>
+        <ContextProvider locale={enUS}>
             <Layout style={{ height: "100vh", position: "relative", display: "flex", flexDirection: "column", backgroundColor: "#F7F8FA" }}>
                 <Content
                     id="main-scroll-container"

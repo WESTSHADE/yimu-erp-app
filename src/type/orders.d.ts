@@ -40,5 +40,6 @@ declare namespace ORDERS {
         page: number;
         pageSize: number;
         status: string;
+        search: string;
     };
 }
