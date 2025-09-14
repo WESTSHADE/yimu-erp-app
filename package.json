@@ -51,8 +51,5 @@
     },
     "peerDependencies": {
         "react-transition-group": "^4.4.5"
-    },
-    "devDependencies": {
-        "@types/lodash": "^4.17.20"
     }
 }

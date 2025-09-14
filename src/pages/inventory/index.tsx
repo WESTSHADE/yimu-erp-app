@@ -1,6 +1,5 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { debounce } from "lodash";
 import { Sticky, Dropdown } from "@arco-design/mobile-react";
 import { IconFilter } from "@arco-design/web-react/icon";
 import { IconArrowIn } from "@arco-design/mobile-react/esm/icon";
@@ -30,13 +29,6 @@ const Inventory = () => {
     const handleShowChange = () => {
         setShowDropdown(!showDropdown);
     };
-
-    const debouncedSearch = useRef(
-        debounce(async (searchParams: string) => {
-            if (searchOption.listType == 1) await getInventoryList({ ...searchOption, search: searchParams });
-            else await getOutboundsList({ ...searchOption, search: searchParams });
-        }, 800)
-    ).current;
 
     const getOutboundsList = async (searchOption: Inventory.searchOption) => {
         setLoading(true);
@@ -147,14 +139,19 @@ const Inventory = () => {
                                 value={searchOption.search}
                                 onClear={() => {
                                     setSearchOption({ ...searchOption, search: "" });
-                                    debouncedSearch("");
                                 }}
                                 onChange={(value) => {
                                     setSearchOption({ ...searchOption, search: value });
-                                    debouncedSearch(value);
                                 }}
                             />
-                            <PCButton type="primary">Search</PCButton>
+                            <PCButton
+                                type="primary"
+                                onClick={async () => {
+                                    await getInventoryList(searchOption);
+                                }}
+                            >
+                                Search
+                            </PCButton>
                         </div>
                         <IconFilter
                             style={{ fontSize: 20 }}

@@ -1,5 +1,4 @@
-import { useEffect, useState, useRef } from "react";
-import { debounce } from "lodash";
+import { useEffect, useState } from "react";
 import { Sticky, Dropdown } from "@arco-design/mobile-react";
 import { IconFilter, IconLeft, IconRight } from "@arco-design/web-react/icon";
 import { getOverviewProduct } from "../../api/prod";
@@ -25,12 +24,6 @@ const ProdPerf = () => {
     const handleShowChange = () => {
         setShowDropdown(!showDropdown);
     };
-
-    const debouncedSearch = useRef(
-        debounce((searchParams: string) => {
-            getTopProductList({ ...searchOption, search: searchParams }, filterValue);
-        }, 800)
-    ).current;
 
     const handleFilter = async (filterValue: GLOBAL.filterType) => {
         setFilterValue(filterValue);
@@ -106,14 +99,19 @@ const ProdPerf = () => {
                                 value={searchOption.search}
                                 onClear={() => {
                                     setSearchOption({ ...searchOption, search: "" });
-                                    debouncedSearch("");
                                 }}
                                 onChange={(value) => {
                                     setSearchOption({ ...searchOption, search: value });
-                                    debouncedSearch(value);
                                 }}
                             />
-                            <PCButton type="primary">Search</PCButton>
+                            <PCButton
+                                type="primary"
+                                onClick={async () => {
+                                    await getTopProductList(searchOption, filterValue);
+                                }}
+                            >
+                                Search
+                            </PCButton>
                         </div>
                         <IconFilter
                             style={{ fontSize: 20 }}

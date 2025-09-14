@@ -1,8 +1,7 @@
-import { useEffect, useState, type ReactNode, useRef } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Sticky, Dropdown } from "@arco-design/mobile-react";
 import { IconCheckCircle, IconClockCircle, IconFilter, IconCloseCircle, IconInfoCircle, IconLoading, IconStop, IconLeft, IconRight } from "@arco-design/web-react/icon";
 import { getOrders } from "../../api/orders";
-import { debounce } from "lodash";
 import { IconArrowIn } from "@arco-design/mobile-react/esm/icon";
 import { List, Card, Input, Button as PCButton, Spin, Descriptions } from "@arco-design/web-react";
 import { useNavigate } from "react-router-dom";
@@ -103,12 +102,6 @@ const Orders = () => {
         setShowDropdown(false);
     };
 
-    const debouncedSearch = useRef(
-        debounce(async (searchParams: string) => {
-            await getOrdersList({ ...searchOption, search: searchParams }, filterValue);
-        }, 800)
-    ).current;
-
     useEffect(() => {
         getOrdersList(searchOption, filterValue);
     }, []);
@@ -146,14 +139,19 @@ const Orders = () => {
                                 value={searchOption.search}
                                 onClear={() => {
                                     setSearchOption({ ...searchOption, search: "" });
-                                    debouncedSearch("");
                                 }}
                                 onChange={(value) => {
                                     setSearchOption({ ...searchOption, search: value });
-                                    debouncedSearch(value);
                                 }}
                             />
-                            <PCButton type="primary">Search</PCButton>
+                            <PCButton
+                                type="primary"
+                                onClick={async () => {
+                                    await getOrdersList(searchOption, filterValue);
+                                }}
+                            >
+                                Search
+                            </PCButton>
                         </div>
                         <IconFilter
                             style={{ fontSize: 20 }}
@@ -213,12 +211,12 @@ const Orders = () => {
                                     style={{
                                         color: "#4E5969",
                                     }}
-                                    onClick={() => {
+                                    onClick={async () => {
                                         const new_singleTime = pacificTime(filterValue?.startTime || filterValue.singleTime)
                                             .subtract(1, "day")
                                             .valueOf();
+                                        await getOrdersList(searchOption, { ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
                                         setFilterValue({ ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
-                                        getOrdersList(searchOption, { ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
                                     }}
                                 />
                             )}
