@@ -121,13 +121,14 @@ const Inventory = () => {
                             height: 32,
                             display: "flex",
                             alignItems: "center",
-                            gap: 10,
+                            justifyContent: "space-between",
                             marginBottom: 12,
                         }}
                     >
                         <div
                             style={{
                                 display: "flex",
+                                marginRight: 10,
                                 flex: 1,
                                 alignItems: "center",
                             }}

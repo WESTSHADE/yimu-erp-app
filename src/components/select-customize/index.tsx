@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Input, Button, Grid, Card } from "@arco-design/web-react";
 import { IconMinus } from "@arco-design/web-react/icon";
 import { DatePicker } from "@arco-design/mobile-react";
@@ -19,7 +19,7 @@ const SelectCustomize: React.FC<propType> = (props) => {
     const [picker2Visible, setPicker2Visible] = useState<boolean>(false);
     const [startTime, setStartTime] = useState<number | undefined>(filterValue?.startTime || undefined);
     const [endTime, setEndTime] = useState<number | undefined>(filterValue?.endTime || undefined);
-
+    const [sortType, setSortType] = useState<string>(filterValue?.sortType || "sold");
     return (
         <Card
             style={{
@@ -146,68 +146,128 @@ const SelectCustomize: React.FC<propType> = (props) => {
                 </Col>
             </Row>
             {pageType && pageType == "prod" && (
-                <Row
-                    style={{
-                        marginBottom: 16,
-                    }}
-                >
-                    <Col>
-                        <div
-                            style={{
-                                color: "#1D2129",
-                                fontSize: 14,
-                                fontWeight: 500,
-                                marginBottom: 8,
-                            }}
-                        >
-                            Sort
-                        </div>
-                    </Col>
-                    <Col>
-                        <Row gutter={[8, 0]}>
-                            <Col span={12}>
-                                <Button
-                                    style={
-                                        filterValue.sortType == "sold"
-                                            ? {
-                                                  width: "100%",
-                                                  backgroundColor: "#E8F3FF",
-                                                  color: "#165DFF",
-                                              }
-                                            : { width: "100%" }
-                                    }
-                                    type="secondary"
-                                    onClick={() => {
-                                        setFilterValue({ ...filterValueInit, sortType: "sold" });
-                                        handleConfirm({ ...filterValueInit, sortType: "sold" });
-                                    }}
-                                >
-                                    By Items Sold
-                                </Button>
-                            </Col>
-                            <Col span={12}>
-                                <Button
-                                    type="secondary"
-                                    style={
-                                        filterValue.sortType == "netSales"
-                                            ? {
-                                                  width: "100%",
-                                                  backgroundColor: "#E8F3FF",
-                                                  color: "#165DFF",
-                                              }
-                                            : { width: "100%" }
-                                    }
-                                    onClick={() => {
-                                        setFilterValue({ ...filterValueInit, sortType: "netSales" });
-                                        handleConfirm({ ...filterValueInit, sortType: "netSales" });
-                                    }}
-                                >
-                                    By Net Sales
-                                </Button>
-                            </Col>
-                        </Row>
-                    </Col>
-                </Row>
+                <>
+                    {/* <Row
+                        style={{
+                            marginBottom: 16,
+                        }}
+                    >
+                        <Col>
+                            <div
+                                style={{
+                                    color: "#1D2129",
+                                    fontSize: 14,
+                                    fontWeight: 500,
+                                    marginBottom: 8,
+                                }}
+                            >
+                                Date Comparison
+                            </div>
+                        </Col>
+                        <Col>
+                            <Row gutter={[8, 0]}>
+                                <Col span={12}>
+                                    <Button
+                                        style={
+                                            sortType == "sold"
+                                                ? {
+                                                      width: "100%",
+                                                      backgroundColor: "#E8F3FF",
+                                                      color: "#165DFF",
+                                                  }
+                                                : { width: "100%" }
+                                        }
+                                        type="secondary"
+                                        onClick={() => {
+                                            setSortType("sold");
+                                        }}
+                                    >
+                                        By Items Sold
+                                    </Button>
+                                </Col>
+                                <Col span={12}>
+                                    <Button
+                                        type="secondary"
+                                        style={
+                                            sortType == "netSales"
+                                                ? {
+                                                      width: "100%",
+                                                      backgroundColor: "#E8F3FF",
+                                                      color: "#165DFF",
+                                                  }
+                                                : { width: "100%" }
+                                        }
+                                        onClick={() => {
+                                            setSortType("netSales");
+                                        }}
+                                    >
+                                        By Net Sales
+                                    </Button>
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row> */}
+                    <Row
+                        style={{
+                            marginBottom: 16,
+                        }}
+                    >
+                        <Col>
+                            <div
+                                style={{
+                                    color: "#1D2129",
+                                    fontSize: 14,
+                                    fontWeight: 500,
+                                    marginBottom: 8,
+                                }}
+                            >
+                                Sort
+                            </div>
+                        </Col>
+                        <Col>
+                            <Row gutter={[8, 0]}>
+                                <Col span={12}>
+                                    <Button
+                                        style={
+                                            sortType == "sold"
+                                                ? {
+                                                      width: "100%",
+                                                      backgroundColor: "#E8F3FF",
+                                                      color: "#165DFF",
+                                                  }
+                                                : { width: "100%" }
+                                        }
+                                        type="secondary"
+                                        onClick={() => {
+                                            setSortType("sold");
+                                        }}
+                                    >
+                                        By Items Sold
+                                    </Button>
+                                </Col>
+                                <Col span={12}>
+                                    <Button
+                                        type="secondary"
+                                        style={
+                                            sortType == "netSales"
+                                                ? {
+                                                      width: "100%",
+                                                      backgroundColor: "#E8F3FF",
+                                                      color: "#165DFF",
+                                                  }
+                                                : { width: "100%" }
+                                        }
+                                        onClick={() => {
+                                            setSortType("netSales");
+                                        }}
+                                    >
+                                        By Net Sales
+                                    </Button>
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
+                </>
             )}
             <Row gutter={[8, 0]}>
                 <Col span={12}>
@@ -219,6 +279,7 @@ const SelectCustomize: React.FC<propType> = (props) => {
                         onClick={() => {
                             setStartTime(undefined);
                             setEndTime(undefined);
+                            setSortType("sold");
                             handleConfirm({ ...filterValueInit, startTime: undefined, endTime: undefined, singleTime: pacificTime().valueOf(), timeSelect: "", sortType: "sold" });
                         }}
                     >
@@ -232,7 +293,7 @@ const SelectCustomize: React.FC<propType> = (props) => {
                             width: "100%",
                         }}
                         onClick={() => {
-                            handleConfirm({ ...filterValue, startTime: startTime, endTime: endTime });
+                            handleConfirm({ ...filterValue, startTime: startTime, endTime: endTime, sortType: sortType });
                         }}
                     >
                         Confirm

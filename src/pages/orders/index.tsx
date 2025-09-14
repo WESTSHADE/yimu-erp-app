@@ -121,7 +121,7 @@ const Orders = () => {
                             height: 32,
                             display: "flex",
                             alignItems: "center",
-                            gap: 10,
+                            justifyContent: "space-between",
                             marginBottom: 12,
                         }}
                     >
@@ -130,6 +130,7 @@ const Orders = () => {
                                 display: "flex",
                                 flex: 1,
                                 alignItems: "center",
+                                marginRight: 10,
                             }}
                         >
                             <Input

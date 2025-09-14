@@ -9,7 +9,7 @@ import { DataType } from "@arco-design/web-react/es/Descriptions/interface";
 // utils
 import { calculatePercentage } from "../../utils/tool";
 import { pacificTime } from "../../utils/dayjs";
-import { formatMoney, formatToLocalTime } from "../../utils/format";
+import { formatRoundingAmount, formatToLocalTime } from "../../utils/format";
 // api
 import { getOverviewMobile, getOverviewOrders } from "../../api/home";
 import { getOverviewProduct } from "../../api/prod";
@@ -397,7 +397,7 @@ const Home = () => {
                                                     }}
                                                 >
                                                     <div style={{ color: "#1D2129", fontWeight: 500, fontSize: 22 }}>
-                                                        {item.type == "$" ? formatMoney(currentRealTime[item.key] || 0) : currentRealTime[item.key] || 0}
+                                                        {item.type == "$" ? formatRoundingAmount(currentRealTime[item.key] || 0) : currentRealTime[item.key] || 0}
                                                     </div>
                                                     <div>
                                                         {difference >= 0 ? (
@@ -415,7 +415,9 @@ const Home = () => {
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div style={{ color: "#86909C", fontSize: 14 }}>{item.type == "$" ? formatMoney(compareRealTime[item.key] || 0) : compareRealTime[item.key] || 0}</div>
+                                                <div style={{ color: "#86909C", fontSize: 14 }}>
+                                                    {item.type == "$" ? formatRoundingAmount(compareRealTime[item.key] || 0) : compareRealTime[item.key] || 0}
+                                                </div>
                                             </div>
                                         </Card>
                                     </Col>
@@ -470,7 +472,7 @@ const Home = () => {
                                                     }}
                                                 >
                                                     <div>{`WS${item.id} ${item?.shipping?.firstName || ""} ${item?.shipping?.lastName || ""}`}</div>
-                                                    <div>{formatMoney(item.total, 2)}</div>
+                                                    <div>{formatRoundingAmount(item.total, 2)}</div>
                                                 </div>
                                                 <Descriptions
                                                     data={orderData}
@@ -533,7 +535,7 @@ const Home = () => {
                                     },
                                     {
                                         label: "Net Sales",
-                                        value: formatMoney(item.netSales),
+                                        value: formatRoundingAmount(item.netSales),
                                     },
                                 ];
                                 return (

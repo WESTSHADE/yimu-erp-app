@@ -26,3 +26,39 @@ export const formatMoney = (value: number | string, fixed?: 2) => {
         minimumFractionDigits: fixed ? fixed : number % 1 === 0 ? 0 : 2,
     });
 };
+
+export const formatRoundingAmount = (amount: number, fixed?: 2) => {
+    // 1. 验证输入是否为有效数字
+    const num = amount;
+    if (isNaN(num)) return "$0.00";
+
+    const absAmount = Math.abs(num);
+    const sign = num < 0 ? "-" : "";
+
+    // 2. 处理大于等于1000的金额
+    if (absAmount >= 1000) {
+        const kValue = absAmount / 1000;
+        // 使用 Intl.NumberFormat 格式化千位符和美元符号
+        return (
+            sign +
+            new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }).format(kValue) +
+            "k"
+        );
+    }
+
+    // 3. 处理小于1000的金额
+    return (
+        sign +
+        new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(absAmount)
+    );
+};
