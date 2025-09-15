@@ -9,7 +9,7 @@ import { DataType } from "@arco-design/web-react/es/Descriptions/interface";
 // utils
 import { calculatePercentage } from "../../utils/tool";
 import { pacificTime } from "../../utils/dayjs";
-import { formatRoundingAmount, formatToLocalTime } from "../../utils/format";
+import { formatRoundingAmount, formatMoney, formatToLocalTime } from "../../utils/format";
 // api
 import { getOverviewMobile, getOverviewOrders } from "../../api/home";
 import { getOverviewProduct } from "../../api/prod";
@@ -472,7 +472,7 @@ const Home = () => {
                                                     }}
                                                 >
                                                     <div>{`WS${item.id} ${item?.shipping?.firstName || ""} ${item?.shipping?.lastName || ""}`}</div>
-                                                    <div>{formatRoundingAmount(item.total, 2)}</div>
+                                                    <div>{formatMoney(item.total)}</div>
                                                 </div>
                                                 <Descriptions
                                                     data={orderData}
@@ -535,7 +535,7 @@ const Home = () => {
                                     },
                                     {
                                         label: "Net Sales",
-                                        value: formatRoundingAmount(item.netSales),
+                                        value: formatMoney(item.netSales),
                                     },
                                 ];
                                 return (

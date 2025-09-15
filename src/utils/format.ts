@@ -27,7 +27,7 @@ export const formatMoney = (value: number | string, fixed?: 2) => {
     });
 };
 
-export const formatRoundingAmount = (amount: number, fixed?: 2) => {
+export const formatRoundingAmount = (amount: number, fixed?: 1) => {
     // 1. 验证输入是否为有效数字
     const num = amount;
     if (isNaN(num)) return "$0.00";
@@ -44,8 +44,8 @@ export const formatRoundingAmount = (amount: number, fixed?: 2) => {
             new Intl.NumberFormat("en-US", {
                 style: "currency",
                 currency: "USD",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1,
             }).format(kValue) +
             "k"
         );
@@ -57,8 +57,8 @@ export const formatRoundingAmount = (amount: number, fixed?: 2) => {
         new Intl.NumberFormat("en-US", {
             style: "currency",
             currency: "USD",
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 1,
         }).format(absAmount)
     );
 };
