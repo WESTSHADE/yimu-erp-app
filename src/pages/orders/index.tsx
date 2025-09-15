@@ -15,40 +15,40 @@ import SelectCustomize from "../../components/select-customize";
 import { filterValueInit } from "../../constant/global";
 const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
     pending: (
-        <span style={{ color: "#FF7D00" }}>
-            <IconInfoCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "middle" }} />
-            Pending
-        </span>
+        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+            <IconInfoCircle style={{ marginRight: 6, verticalAlign: "baseline", fontSize: 12 }} />
+            <span style={{ fontSize: 14 }}>Pending</span>
+        </div>
     ),
     processing: (
-        <span style={{ color: "#072CA6" }}>
-            <IconClockCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "middle" }} />
-            Processing
-        </span>
+        <div style={{ color: "#072CA6", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+            <IconClockCircle style={{ marginRight: 6, verticalAlign: "middle", fontSize: 12 }} />
+            <span style={{ fontSize: 14 }}>Processing</span>
+        </div>
     ),
     "partial-shipped": (
-        <span style={{ color: "#4080FF" }}>
-            <IconLoading style={{ fontSize: 12, marginRight: 6, animation: "none", verticalAlign: "middle" }} />
-            Partially Shipped
-        </span>
+        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+            <IconLoading style={{ marginRight: 6, animation: "none", verticalAlign: "middle", fontSize: 12 }} />
+            <span style={{ fontSize: 14 }}>Partially Shipped</span>
+        </div>
     ),
     shipped: (
-        <span style={{ color: "#009A29" }}>
-            <IconCheckCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "middle" }} />
-            Shipped
-        </span>
+        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+            <IconCheckCircle style={{ marginRight: 6, verticalAlign: "middle", fontSize: 12 }} />
+            <span style={{ fontSize: 14 }}>Shipped</span>
+        </div>
     ),
     cancelled: (
-        <span style={{ color: "#86909C" }}>
-            <IconCloseCircle style={{ fontSize: 12, marginRight: 6, verticalAlign: "middle" }} />
-            Cancelled
-        </span>
+        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+            <IconCloseCircle style={{ marginRight: 6, verticalAlign: "middle", fontSize: 12 }} />
+            <span style={{ fontSize: 14 }}>Cancelled</span>
+        </div>
     ),
     refunded: (
-        <span style={{ color: "#8547DA" }}>
-            <IconStop style={{ fontSize: 12, marginRight: 6, verticalAlign: "middle" }} />
-            Refunded
-        </span>
+        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+            <IconStop style={{ marginRight: 6, verticalAlign: "middle", fontSize: 12 }} />
+            <span style={{ fontSize: 14 }}>Refunded</span>
+        </div>
     ),
 };
 const Orders = () => {
@@ -155,7 +155,7 @@ const Orders = () => {
                             </PCButton>
                         </div>
                         <IconFilter
-                            style={{ fontSize: 20 }}
+                            style={{ fontSize: 20, color: "#4E5969" }}
                             onClick={() => {
                                 setShowDropdown(!showDropdown);
                             }}
@@ -248,7 +248,7 @@ const Orders = () => {
                             )}
                         </div>
                     </div>
-                    <div style={{ overflowX: "auto", width: "100%", whiteSpace: "nowrap", display: "flex" }}>
+                    <div style={{ overflowX: "auto", width: "100%", whiteSpace: "nowrap", display: "flex", scrollbarWidth: "none", msOverflowStyle: "none" }}>
                         {[{ label: "All", value: "all" }, ...OrderStatusList].map((item) => {
                             return (
                                 <PCButton

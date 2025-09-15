@@ -119,13 +119,16 @@ const SelectCustomize: React.FC<propType> = (props) => {
                 justify="center"
             >
                 <Col flex="1">
-                    <Input
-                        value={startTime ? pacificTime(startTime).format("MM/DD/YYYY") : undefined}
-                        placeholder="Start Time"
+                    <Button
+                        style={{
+                            width: "100%",
+                        }}
                         onClick={() => {
                             setPicker1Visible(true);
                         }}
-                    />
+                    >
+                        {startTime ? pacificTime(startTime).format("MM/DD/YYYY") : "Start Time"}
+                    </Button>
                 </Col>
                 <Col span={2}>
                     <IconMinus />
@@ -136,13 +139,16 @@ const SelectCustomize: React.FC<propType> = (props) => {
                         setPicker2Visible(true);
                     }}
                 >
-                    <Input
-                        placeholder="End Time"
-                        value={endTime ? pacificTime(endTime).format("MM/DD/YYYY") : undefined}
+                    <Button
+                        style={{
+                            width: "100%",
+                        }}
                         onClick={() => {
                             setPicker2Visible(true);
                         }}
-                    />
+                    >
+                        {endTime ? pacificTime(endTime).format("MM/DD/YYYY") : "End Time"}
+                    </Button>
                 </Col>
             </Row>
             {pageType && pageType == "prod" && (

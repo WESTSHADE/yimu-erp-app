@@ -155,7 +155,7 @@ const Inventory = () => {
                             </PCButton>
                         </div>
                         <IconFilter
-                            style={{ fontSize: 20 }}
+                            style={{ fontSize: 20, color: "#4E5969" }}
                             onClick={() => {
                                 setShowDropdown(!showDropdown);
                             }}
@@ -286,9 +286,26 @@ const Inventory = () => {
                                 color: "#1D2129",
                                 fontWeight: 500,
                                 marginBottom: 8,
+                                display: "flex",
+                                justifyContent: "space-between",
                             }}
                         >
-                            SKU Below Safety Stock
+                            <div>SKU Below Safety Stock</div>
+                            <PCButton
+                                size="mini"
+                                type="text"
+                                style={{
+                                    padding: 0,
+                                    fontSize: 14,
+                                    backgroundColor: "transparent",
+                                }}
+                                onClick={async () => {
+                                    setSearchOption({ ...searchOption, stockStatus: ["lowstock", "outofstock"] });
+                                    await getInventoryList({ ...searchOption, stockStatus: ["lowstock", "outofstock"] });
+                                }}
+                            >
+                                View
+                            </PCButton>
                         </div>
                         <div
                             style={{
@@ -299,29 +316,6 @@ const Inventory = () => {
                         >
                             {underSafetyStock}
                         </div>
-                    </div>
-                    <div
-                        style={{
-                            display: "flex",
-                            justifyContent: "flex-end",
-                        }}
-                    >
-                        <PCButton
-                            size="mini"
-                            type="text"
-                            style={{
-                                padding: 0,
-                                fontSize: 14,
-                                marginTop: 8,
-                                backgroundColor: "transparent",
-                            }}
-                            onClick={async () => {
-                                setSearchOption({ ...searchOption, stockStatus: ["lowstock", "outofstock"] });
-                                await getInventoryList({ ...searchOption, stockStatus: ["lowstock", "outofstock"] });
-                            }}
-                        >
-                            View
-                        </PCButton>
                     </div>
                 </Card>
             )}
@@ -365,6 +359,7 @@ const Inventory = () => {
                                                         width: "100%",
                                                         justifyContent: "space-between",
                                                         color: "#1D2129",
+                                                        fontWeight: 500,
                                                     }}
                                                 >
                                                     <div>{item.sku}</div>

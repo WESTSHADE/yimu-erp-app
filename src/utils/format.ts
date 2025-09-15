@@ -36,29 +36,16 @@ export const formatRoundingAmount = (amount: number, fixed?: 1) => {
     const sign = num < 0 ? "-" : "";
 
     // 2. 处理大于等于1000的金额
-    if (absAmount >= 1000) {
-        const kValue = absAmount / 1000;
-        // 使用 Intl.NumberFormat 格式化千位符和美元符号
-        return (
-            sign +
-            new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-            }).format(kValue) +
-            "k"
-        );
-    }
-
-    // 3. 处理小于1000的金额
+    const kValue = absAmount / 1000;
+    // 使用 Intl.NumberFormat 格式化千位符和美元符号
     return (
         sign +
         new Intl.NumberFormat("en-US", {
             style: "currency",
             currency: "USD",
-            minimumFractionDigits: 1,
-            maximumFractionDigits: 1,
-        }).format(absAmount)
+            minimumFractionDigits: fixed,
+            maximumFractionDigits: fixed,
+        }).format(kValue) +
+        "k"
     );
 };

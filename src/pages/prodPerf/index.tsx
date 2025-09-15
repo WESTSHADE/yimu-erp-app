@@ -115,7 +115,7 @@ const ProdPerf = () => {
                             </PCButton>
                         </div>
                         <IconFilter
-                            style={{ fontSize: 20 }}
+                            style={{ fontSize: 20, color: "#4E5969" }}
                             onClick={() => {
                                 setShowDropdown(!showDropdown);
                             }}

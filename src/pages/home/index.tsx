@@ -21,40 +21,40 @@ import { filterValueInit } from "../../constant/global";
 const { Row, Col } = Grid;
 const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
     pending: (
-        <span style={{ color: "#FF7D00" }}>
-            <IconInfoCircle style={{ marginRight: 6, verticalAlign: "middle" }} />
-            Pending
-        </span>
+        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+            <IconInfoCircle style={{ marginRight: 6, verticalAlign: "baseline", fontSize: 12 }} />
+            <span style={{ fontSize: 14 }}>Pending</span>
+        </div>
     ),
     processing: (
-        <span style={{ color: "#072CA6" }}>
-            <IconClockCircle style={{ marginRight: 6, verticalAlign: "middle" }} />
-            Processing
-        </span>
+        <div style={{ color: "#072CA6", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+            <IconClockCircle style={{ marginRight: 6, verticalAlign: "middle", fontSize: 12 }} />
+            <span style={{ fontSize: 14 }}>Processing</span>
+        </div>
     ),
     "partial-shipped": (
-        <span style={{ color: "#4080FF" }}>
-            <IconLoading style={{ marginRight: 6, animation: "none", verticalAlign: "middle" }} />
-            Partially Shipped
-        </span>
+        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+            <IconLoading style={{ marginRight: 6, animation: "none", verticalAlign: "middle", fontSize: 12 }} />
+            <span style={{ fontSize: 14 }}>Partially Shipped</span>
+        </div>
     ),
     shipped: (
-        <span style={{ color: "#009A29" }}>
-            <IconCheckCircle style={{ marginRight: 6, verticalAlign: "middle" }} />
-            Shipped
-        </span>
+        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+            <IconCheckCircle style={{ marginRight: 6, verticalAlign: "middle", fontSize: 12 }} />
+            <span style={{ fontSize: 14 }}>Shipped</span>
+        </div>
     ),
     cancelled: (
-        <span style={{ color: "#86909C" }}>
-            <IconCloseCircle style={{ marginRight: 6, verticalAlign: "middle" }} />
-            Cancelled
-        </span>
+        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+            <IconCloseCircle style={{ marginRight: 6, verticalAlign: "middle", fontSize: 12 }} />
+            <span style={{ fontSize: 14 }}>Cancelled</span>
+        </div>
     ),
     refunded: (
-        <span style={{ color: "#8547DA" }}>
-            <IconStop style={{ marginRight: 6, verticalAlign: "middle" }} />
-            Refunded
-        </span>
+        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+            <IconStop style={{ marginRight: 6, verticalAlign: "middle", fontSize: 12 }} />
+            <span style={{ fontSize: 14 }}>Refunded</span>
+        </div>
     ),
 };
 const initRealTime: HOME.ordersTotals = {
@@ -332,7 +332,7 @@ const Home = () => {
                             />
                         )}
                         <IconFilter
-                            style={{ fontSize: 20, marginLeft: 10 }}
+                            style={{ fontSize: 20, marginLeft: 10, color: "#4E5969" }}
                             onClick={() => {
                                 setShowDropdown(!showDropdown);
                             }}
@@ -380,11 +380,13 @@ const Home = () => {
                                             bordered={false}
                                             style={{
                                                 backgroundColor: `${item.color}`,
+                                                height: "100%",
                                             }}
                                             bodyStyle={{
                                                 display: "flex",
                                                 flexDirection: "column",
                                                 justifyContent: "space-between",
+                                                height: "100%",
                                             }}
                                         >
                                             <div style={{ color: "#1D2129", fontWeight: 500 }}>{item.title}</div>
@@ -409,6 +411,7 @@ const Home = () => {
                                                             style={{
                                                                 color: difference >= 0 ? "#009A29" : "#CB272D",
                                                                 marginLeft: 2,
+                                                                fontSize: 10,
                                                             }}
                                                         >
                                                             {calculatePercentage(Number(currentRealTime[item.key] || 0), Number(compareRealTime[item.key]) || 0) + "%"}
@@ -469,6 +472,7 @@ const Home = () => {
                                                         display: "flex",
                                                         width: "100%",
                                                         justifyContent: "space-between",
+                                                        fontWeight: 500,
                                                     }}
                                                 >
                                                     <div>{`WS${item.id} ${item?.shipping?.firstName || ""} ${item?.shipping?.lastName || ""}`}</div>
@@ -479,7 +483,6 @@ const Home = () => {
                                                     column={1}
                                                     labelStyle={{
                                                         paddingBottom: "4px",
-                                                        height: 22,
                                                         color: "#86909C",
                                                         fontWeight: 400,
                                                     }}
