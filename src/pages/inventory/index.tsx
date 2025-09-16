@@ -77,6 +77,7 @@ const Inventory = () => {
             if (!reset) setInventoryList([...inventoryList, ...res.data]);
             else setInventoryList(res.data);
             setLoading(false);
+            setShowDropdown(false);
         });
     };
 
@@ -154,17 +155,14 @@ const Inventory = () => {
                                 Search
                             </PCButton>
                         </div>
-                        <IconFilter
-                            style={{ fontSize: 20, color: "#4E5969" }}
-                            onClick={() => {
-                                setShowDropdown(!showDropdown);
-                            }}
-                        />
+                        <span className="filter-trigger" onMouseDown={(e) => e.stopPropagation()} onClick={() => setShowDropdown((v) => !v)} style={{ display: "inline-flex", alignItems: "center" }}>
+                            <IconFilter style={{ fontSize: 20, color: "#4E5969" }} />
+                        </span>
                         <Dropdown
                             clickOtherToClose={true}
                             isStopTouchEl={(target) => {
-                                const selectNode = document.querySelector(".select-customize");
-                                return selectNode?.contains(target) as boolean;
+                                const el = target as Element;
+                                return !!el.closest(".select-customize, .filter-trigger");
                             }}
                             showDropdown={showDropdown}
                             onOptionChange={handleShowChange}
@@ -201,11 +199,9 @@ const Inventory = () => {
                                                     onClick={async () => {
                                                         if (searchOption.stockStatus.includes(item.value)) {
                                                             setSearchOption({ ...searchOption, stockStatus: searchOption.stockStatus.filter((itemA) => itemA != item.value) });
-                                                            await getInventoryList({ ...searchOption, stockStatus: searchOption.stockStatus.filter((itemA) => itemA != item.value) });
                                                         } else {
                                                             const newStockStatus = [...searchOption.stockStatus, item.value];
                                                             setSearchOption({ ...searchOption, stockStatus: newStockStatus });
-                                                            await getInventoryList({ ...searchOption, stockStatus: newStockStatus });
                                                         }
                                                     }}
                                                 >
@@ -214,6 +210,40 @@ const Inventory = () => {
                                             </Col>
                                         );
                                     })}
+                                </Row>
+                                <Row
+                                    gutter={[8, 0]}
+                                    style={{
+                                        marginTop: 16,
+                                    }}
+                                >
+                                    <Col span={12}>
+                                        <PCButton
+                                            type="secondary"
+                                            style={{
+                                                width: "100%",
+                                            }}
+                                            onClick={async () => {
+                                                setSearchOption({ ...searchOption, stockStatus: [] });
+                                                await getInventoryList({ ...searchOption, stockStatus: [] });
+                                            }}
+                                        >
+                                            Reset
+                                        </PCButton>
+                                    </Col>
+                                    <Col span={12}>
+                                        <PCButton
+                                            type="primary"
+                                            style={{
+                                                width: "100%",
+                                            }}
+                                            onClick={async () => {
+                                                await getInventoryList(searchOption);
+                                            }}
+                                        >
+                                            Confirm
+                                        </PCButton>
+                                    </Col>
                                 </Row>
                             </Card>
                         </Dropdown>

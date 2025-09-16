@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Input, Button, Grid, Card } from "@arco-design/web-react";
+import { Button, Grid, Card } from "@arco-design/web-react";
 import { IconMinus } from "@arco-design/web-react/icon";
 import { DatePicker } from "@arco-design/mobile-react";
 // constant
@@ -63,6 +63,9 @@ const SelectCustomize: React.FC<propType> = (props) => {
                 })}
             </Row>
             <DatePicker
+                itemStyle={{
+                    fontSize: "16px",
+                }}
                 rangeItemFormat="MM-DD-YYYY"
                 className="select-customize"
                 visible={picker1Visible}

@@ -32,7 +32,6 @@ pre {
 html,
 body,
 div,
-span,
 applet,
 object,
 iframe,
@@ -117,6 +116,17 @@ video {
     vertical-align: middle;
 }
 
+span {
+    vertical-align: baseline;
+}
+
 .arco-icon {
     font-size: 20px;
+}
+
+.arco-picker-column-item {
+    font-size: 16px;
+}
+.arco-picker-header-btn {
+    font-size: 14px;
 }

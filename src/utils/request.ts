@@ -5,7 +5,6 @@ import { Toast } from "@arco-design/mobile-react";
 const axiosInstance = axios.create({
     baseURL: process.env.REACT_APP_BASE_URL,
 });
-console.log(process.env);
 
 // 请求拦截器
 axiosInstance.interceptors.request.use(

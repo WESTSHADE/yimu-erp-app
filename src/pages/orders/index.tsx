@@ -154,17 +154,14 @@ const Orders = () => {
                                 Search
                             </PCButton>
                         </div>
-                        <IconFilter
-                            style={{ fontSize: 20, color: "#4E5969" }}
-                            onClick={() => {
-                                setShowDropdown(!showDropdown);
-                            }}
-                        />
+                        <span className="filter-trigger" onMouseDown={(e) => e.stopPropagation()} onClick={() => setShowDropdown((v) => !v)} style={{ display: "inline-flex", alignItems: "center" }}>
+                            <IconFilter style={{ fontSize: 20, color: "#4E5969" }} />
+                        </span>
                         <Dropdown
                             clickOtherToClose={true}
                             isStopTouchEl={(target) => {
-                                const selectNode = document.querySelector(".select-customize");
-                                return selectNode?.contains(target) as boolean;
+                                const el = target as Element;
+                                return !!el.closest(".select-customize, .filter-trigger");
                             }}
                             showDropdown={showDropdown}
                             onOptionChange={handleShowChange}
