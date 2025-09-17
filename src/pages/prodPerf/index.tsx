@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Sticky, Dropdown } from "@arco-design/mobile-react";
-import { IconFilter, IconLeft, IconRight } from "@arco-design/web-react/icon";
+import { IconFilter, IconLeft, IconRight, IconLoop } from "@arco-design/web-react/icon";
 import { getOverviewProduct } from "../../api/prod";
 import { List, Card, Button as PCButton, Spin, Input, Descriptions } from "@arco-design/web-react";
 // utils
@@ -198,80 +198,116 @@ const ProdPerf = () => {
                             <SelectCustomize filterValue={filterValue} setFilterValue={setFilterValue} handleConfirm={handleFilter} pageType={"prod"} />
                         </Dropdown>
                     </div>
-                    <div
-                        style={{
-                            height: 22,
-                            backgroundColor: "#FFFFFF",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                        }}
-                    >
+                    {filterValue.compareType == "single " ? (
+                        <div
+                            style={{
+                                height: 22,
+                                backgroundColor: "#FFFFFF",
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                            }}
+                        >
+                            <div
+                                style={{
+                                    color: "#1D2129",
+                                    fontSize: 14,
+                                    fontWeight: 500,
+                                }}
+                            >
+                                {filterValue?.startTime && filterValue?.endTime
+                                    ? `Select: ${pacificTime(filterValue?.startTime).format("MM-DD-YYYY")},${pacificTime(filterValue?.endTime).format("MM-DD-YYYY")}`
+                                    : `${
+                                          pacificTime().startOf("day").format("MM-DD-YYYY") ==
+                                          pacificTime(filterValue?.startTime || filterValue.singleTime)
+                                              .startOf("day")
+                                              .format("MM-DD-YYYY")
+                                              ? "Today "
+                                              : ""
+                                      }${pacificTime(filterValue?.startTime || filterValue.singleTime).format("MM-DD-YYYY")}`}
+                            </div>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                }}
+                            >
+                                {!filterValue?.endTime && (
+                                    <IconLeft
+                                        style={{
+                                            color: "#4E5969",
+                                        }}
+                                        onClick={() => {
+                                            const new_singleTime = pacificTime(filterValue?.startTime || filterValue.singleTime)
+                                                .subtract(1, "day")
+                                                .valueOf();
+                                            setFilterValue({ ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                            getTopProductList(searchOption, { ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                        }}
+                                    />
+                                )}
+                                {!filterValue?.endTime && (
+                                    <IconRight
+                                        style={{
+                                            color:
+                                                pacificTime(filterValue.startTime || filterValue.singleTime)
+                                                    .startOf("day")
+                                                    .valueOf() < pacificTime().startOf("day").valueOf()
+                                                    ? "#4E5969"
+                                                    : "#4E59694D",
+                                        }}
+                                        onClick={() => {
+                                            if (
+                                                pacificTime(filterValue.startTime || filterValue.singleTime)
+                                                    .startOf("day")
+                                                    .valueOf() < pacificTime().startOf("day").valueOf()
+                                            ) {
+                                                const new_singleTime = pacificTime(filterValue?.startTime || filterValue.singleTime)
+                                                    .add(1, "day")
+                                                    .valueOf();
+                                                setFilterValue({ ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                                getTopProductList(searchOption, { ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
+                                            }
+                                        }}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                    ) : (
                         <div
                             style={{
                                 color: "#1D2129",
+                                backgroundColor: "#FFFFFF",
                                 fontSize: 14,
                                 fontWeight: 500,
                             }}
                         >
-                            {filterValue?.startTime && filterValue?.endTime
-                                ? `Select: ${pacificTime(filterValue?.startTime).format("MM-DD-YYYY")},${pacificTime(filterValue?.endTime).format("MM-DD-YYYY")}`
-                                : `${
-                                      pacificTime().startOf("day").format("MM-DD-YYYY") ==
-                                      pacificTime(filterValue?.startTime || filterValue.singleTime)
-                                          .startOf("day")
-                                          .format("MM-DD-YYYY")
-                                          ? "Today "
-                                          : ""
-                                  }${pacificTime(filterValue?.startTime || filterValue.singleTime).format("MM-DD-YYYY")}`}
-                        </div>
-                        <div
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                            }}
-                        >
-                            {!filterValue?.endTime && (
-                                <IconLeft
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                }}
+                            >
+                                <div>Select:</div>
+                                <IconLoop
                                     style={{
                                         color: "#4E5969",
                                     }}
-                                    onClick={() => {
-                                        const new_singleTime = pacificTime(filterValue?.startTime || filterValue.singleTime)
-                                            .subtract(1, "day")
-                                            .valueOf();
-                                        setFilterValue({ ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
-                                        getTopProductList(searchOption, { ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
-                                    }}
                                 />
-                            )}
-                            {!filterValue?.endTime && (
-                                <IconRight
-                                    style={{
-                                        color:
-                                            pacificTime(filterValue.startTime || filterValue.singleTime)
-                                                .startOf("day")
-                                                .valueOf() < pacificTime().startOf("day").valueOf()
-                                                ? "#4E5969"
-                                                : "#4E59694D",
-                                    }}
-                                    onClick={() => {
-                                        if (
-                                            pacificTime(filterValue.startTime || filterValue.singleTime)
-                                                .startOf("day")
-                                                .valueOf() < pacificTime().startOf("day").valueOf()
-                                        ) {
-                                            const new_singleTime = pacificTime(filterValue?.startTime || filterValue.singleTime)
-                                                .add(1, "day")
-                                                .valueOf();
-                                            setFilterValue({ ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
-                                            getTopProductList(searchOption, { ...filterValue, singleTime: new_singleTime, startTime: filterValue.startTime ? new_singleTime : undefined });
-                                        }
-                                    }}
-                                />
-                            )}
+                            </div>
+                            <div
+                                style={{
+                                    overflow: "auto",
+                                    whiteSpace: "nowrap",
+                                    width: "100%",
+                                    scrollbarWidth: "none",
+                                    msOverflowStyle: "none",
+                                }}
+                            >{`Date1: ${pacificTime(filterValue?.dateRange?.[0]).format("MM-DD-YYYY")} - ${pacificTime(filterValue?.dateRange?.[1]).format("MM-DD-YYYY")}; Date2: ${pacificTime(
+                                filterValue?.compareRange?.[0]
+                            ).format("MM-DD-YYYY")} - ${pacificTime(filterValue?.compareRange?.[1]).format("MM-DD-YYYY")}`}</div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </Sticky>
             <Spin loading={loading} style={{ display: "block" }}>
