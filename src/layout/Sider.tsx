@@ -23,7 +23,7 @@ const SiderContent = () => {
             icon: (
                 <IconHome
                     style={{
-                        fontSize: 16,
+                        fontSize: 20,
                     }}
                 />
             ),
@@ -33,7 +33,7 @@ const SiderContent = () => {
             icon: (
                 <IconFile
                     style={{
-                        fontSize: 16,
+                        fontSize: 20,
                     }}
                 />
             ),
@@ -43,7 +43,7 @@ const SiderContent = () => {
             icon: (
                 <IconArchive
                     style={{
-                        fontSize: 16,
+                        fontSize: 20,
                     }}
                 />
             ),
@@ -53,7 +53,7 @@ const SiderContent = () => {
             icon: (
                 <IconTag
                     style={{
-                        fontSize: 16,
+                        fontSize: 20,
                     }}
                 />
             ),
