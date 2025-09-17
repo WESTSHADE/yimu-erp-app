@@ -27,25 +27,25 @@ const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
         </div>
     ),
     "partial-shipped": (
-        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+        <div style={{ color: "#4080FF", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
             <IconLoading style={{ marginRight: 6, animation: "none", verticalAlign: "middle", fontSize: 12 }} />
             <span style={{ fontSize: 14 }}>Partially Shipped</span>
         </div>
     ),
     shipped: (
-        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+        <div style={{ color: "#009A29", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
             <IconCheckCircle style={{ marginRight: 6, verticalAlign: "middle", fontSize: 12 }} />
             <span style={{ fontSize: 14 }}>Shipped</span>
         </div>
     ),
     cancelled: (
-        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+        <div style={{ color: "#86909C", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
             <IconCloseCircle style={{ marginRight: 6, verticalAlign: "middle", fontSize: 12 }} />
             <span style={{ fontSize: 14 }}>Cancelled</span>
         </div>
     ),
     refunded: (
-        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+        <div style={{ color: "#8547DA", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
             <IconStop style={{ marginRight: 6, verticalAlign: "middle", fontSize: 12 }} />
             <span style={{ fontSize: 14 }}>Refunded</span>
         </div>
@@ -69,6 +69,7 @@ const Orders = () => {
     };
     const handleFilter = async (filterValue: GLOBAL.filterType) => {
         setFilterValue(filterValue);
+        sessionStorage.setItem("filterValue", JSON.stringify(filterValue));
         await getOrdersList(searchOption, filterValue);
     };
     const getOrdersList = async (searchOption: ORDERS.searchOption, filterValue: GLOBAL.filterType) => {
@@ -103,7 +104,11 @@ const Orders = () => {
     };
 
     useEffect(() => {
-        getOrdersList(searchOption, filterValue);
+        const sessionFilterValue = sessionStorage.getItem("filterValue");
+        if (sessionFilterValue) {
+            setFilterValue(JSON.parse(sessionFilterValue));
+            getOrdersList(searchOption, JSON.parse(sessionFilterValue));
+        } else getOrdersList(searchOption, filterValue);
     }, []);
 
     return (

@@ -33,25 +33,25 @@ const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
         </div>
     ),
     "partial-shipped": (
-        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+        <div style={{ color: "#4080FF", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
             <IconLoading style={{ marginRight: 6, animation: "none", verticalAlign: "middle", fontSize: 12 }} />
             <span style={{ fontSize: 14 }}>Partially Shipped</span>
         </div>
     ),
     shipped: (
-        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
-            <IconCheckCircle style={{ marginRight: 6, verticalAlign: "middle", fontSize: 12 }} />
+        <div style={{ color: "#009A29", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+            <IconCheckCircle style={{ marginRight: 6, verticalAlign: "middle", fontSize: 12, animation: "none" }} />
             <span style={{ fontSize: 14 }}>Shipped</span>
         </div>
     ),
     cancelled: (
-        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+        <div style={{ color: "#86909C", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
             <IconCloseCircle style={{ marginRight: 6, verticalAlign: "middle", fontSize: 12 }} />
             <span style={{ fontSize: 14 }}>Cancelled</span>
         </div>
     ),
     refunded: (
-        <div style={{ color: "#FF7D00", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+        <div style={{ color: "#8547DA", height: 22, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
             <IconStop style={{ marginRight: 6, verticalAlign: "middle", fontSize: 12 }} />
             <span style={{ fontSize: 14 }}>Refunded</span>
         </div>
@@ -191,6 +191,7 @@ const Home = () => {
 
     const getOrdersList = async (filterValue: GLOBAL.filterType) => {
         setFilterValue(filterValue);
+        sessionStorage.setItem("filterValue", JSON.stringify(filterValue));
         const currentDate = filterValue.startTime
             ? filterValue.endTime
                 ? [filterValue.startTime, filterValue.endTime]
@@ -237,7 +238,11 @@ const Home = () => {
     };
 
     useEffect(() => {
-        getOrdersList(filterValue);
+        const sessionFilterValue = sessionStorage.getItem("filterValue");
+        if (sessionFilterValue) {
+            setFilterValue(JSON.parse(sessionFilterValue));
+            getOrdersList(JSON.parse(sessionFilterValue));
+        } else getOrdersList(filterValue);
         getOverviewMobileData();
     }, []);
     return (

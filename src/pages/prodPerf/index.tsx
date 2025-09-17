@@ -28,6 +28,7 @@ const ProdPerf = () => {
 
     const handleFilter = async (filterValue: GLOBAL.filterType) => {
         setFilterValue(filterValue);
+        sessionStorage.setItem("filterValue", JSON.stringify(filterValue));
         if (filterValue.compareType == "single") {
             await getTopProductList(searchOption, filterValue);
         } else {
@@ -125,7 +126,10 @@ const ProdPerf = () => {
     };
 
     useEffect(() => {
-        getTopProductList(searchOption, filterValue);
+        const sessionFilterValue = sessionStorage.getItem("filterValue");
+        if (sessionFilterValue) {
+            handleFilter(JSON.parse(sessionFilterValue));
+        } else getTopProductList(searchOption, filterValue);
     }, []);
 
     return (

@@ -1,10 +1,12 @@
 import { useEffect, useRef } from "react";
 import { Sticky, NavBar } from "@arco-design/mobile-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Card, Tag, Descriptions } from "@arco-design/web-react";
+import { Card, Tag, Descriptions, Grid } from "@arco-design/web-react";
+import { IconLeft } from "@arco-design/web-react/icon";
 // constant
 import { stockStatusOptions } from "../../constant/inventory";
 import { DataType } from "@arco-design/web-react/es/Descriptions/interface";
+const { Row, Col } = Grid;
 const InventoryDetail = () => {
     const navBarRef = useRef(null);
     const location: {
@@ -131,16 +133,30 @@ const InventoryDetail = () => {
                 topOffset={0}
                 getScrollContainer={() => document.getElementById("main-scroll-container") || window}
             >
-                <NavBar
-                    ref={navBarRef}
-                    onClickLeft={() => {
-                        navigator(-1);
-                    }}
-                    fixed={false}
-                    hasBottomLine={false}
-                    style={{ height: "44px" }}
-                >
-                    <div style={{ fontSize: 18, textAlign: "center", width: "100%", lineHeight: "44px", fontWeight: 500 }}>{inventoryDetail.sku}</div>
+                <NavBar ref={navBarRef} fixed={false} hasBottomLine={false} style={{ height: "44px" }}>
+                    <Row style={{ height: "44px" }} align="center">
+                        <Col
+                            span={6}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                            }}
+                        >
+                            <IconLeft
+                                style={{
+                                    fontSize: "20px",
+                                    marginLeft: "12px",
+                                    color: "#1D2129",
+                                }}
+                                onClick={() => {
+                                    navigator("/inventory");
+                                }}
+                            />
+                        </Col>
+                        <Col span={12}>
+                            <div style={{ fontSize: 18, textAlign: "center", width: "100%", lineHeight: "44px", fontWeight: 500 }}>{inventoryDetail.sku}</div>
+                        </Col>
+                    </Row>
                 </NavBar>
             </Sticky>
             <Card

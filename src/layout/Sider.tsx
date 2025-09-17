@@ -61,7 +61,7 @@ const SiderContent = () => {
     ];
 
     return (
-        <Sticky position="bottom" style={{ height: 52 }}>
+        <Sticky position="bottom" style={{ height: 65 }}>
             <TabBar
                 fixed={false}
                 style={{ height: "100%", backgroundColor: "#fff" }}

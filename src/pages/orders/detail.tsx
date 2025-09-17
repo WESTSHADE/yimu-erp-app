@@ -1,11 +1,12 @@
 import { ReactNode, useEffect, useRef } from "react";
 import { Sticky, NavBar } from "@arco-design/mobile-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Card, Descriptions } from "@arco-design/web-react";
+import { Card, Descriptions, Grid } from "@arco-design/web-react";
 import { DataType } from "@arco-design/web-react/es/Descriptions/interface";
 // utils
 import { formatToLocalTime } from "../../utils/format";
-import { IconCheckCircle, IconClockCircle, IconCloseCircle, IconInfoCircle, IconLoading, IconStop } from "@arco-design/web-react/icon";
+import { IconCheckCircle, IconClockCircle, IconCloseCircle, IconInfoCircle, IconLoading, IconLeft, IconStop } from "@arco-design/web-react/icon";
+const { Row, Col } = Grid;
 const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
     pending: (
         <span style={{ color: "#FF7D00" }}>
@@ -21,7 +22,7 @@ const StatusMap: Record<ORDERS.OrderStatus, ReactNode> = {
     ),
     "partial-shipped": (
         <span style={{ color: "#4080FF" }}>
-            <IconLoading style={{ fontSize: 12, marginRight: 6, verticalAlign: "baseline" }} />
+            <IconLoading style={{ fontSize: 12, marginRight: 6, verticalAlign: "baseline", animation: "none" }} />
             Partially Shipped
         </span>
     ),
@@ -115,17 +116,31 @@ const OrdersDetail = () => {
                 topOffset={0}
                 getScrollContainer={() => document.getElementById("main-scroll-container") || window}
             >
-                <NavBar
-                    ref={navBarRef}
-                    onClickLeft={() => {
-                        if (pageType == "orders") navigator("/orders");
-                        else navigator("/home");
-                    }}
-                    fixed={false}
-                    hasBottomLine={false}
-                    style={{ height: "44px" }}
-                >
-                    <div style={{ fontSize: 18, textAlign: "center", width: "100%", lineHeight: "44px", fontWeight: 500 }}>Order Details</div>
+                <NavBar ref={navBarRef} leftContent={false} fixed={false} hasBottomLine={false} style={{ height: "44px" }}>
+                    <Row style={{ height: "44px" }} align="center">
+                        <Col
+                            span={6}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                            }}
+                        >
+                            <IconLeft
+                                style={{
+                                    fontSize: "20px",
+                                    marginLeft: "12px",
+                                    color: "#1D2129",
+                                }}
+                                onClick={() => {
+                                    if (pageType == "orders") navigator("/orders");
+                                    else navigator("/home");
+                                }}
+                            />
+                        </Col>
+                        <Col span={12}>
+                            <div style={{ fontSize: 18, textAlign: "center", width: "100%", lineHeight: "44px", fontWeight: 500 }}>Order Details</div>
+                        </Col>
+                    </Row>
                 </NavBar>
             </Sticky>
             <Card
