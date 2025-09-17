@@ -403,13 +403,18 @@ const Home = () => {
                                                     <div style={{ color: "#1D2129", fontWeight: 500, fontSize: 22 }}>
                                                         {item.type == "$" ? formatRoundingAmount(currentRealTime[item.key] || 0) : currentRealTime[item.key] || 0}
                                                     </div>
-                                                    <div>
+                                                    <div
+                                                        style={{
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                        }}
+                                                    >
                                                         {difference >= 0 ? (
                                                             <IconPlus style={{ color: "#009A29", fontSize: 10, verticalAlign: "middle" }} />
                                                         ) : (
                                                             <IconMinus style={{ color: "#CB272D", fontSize: 10, verticalAlign: "middle" }} />
                                                         )}
-                                                        <span
+                                                        <div
                                                             style={{
                                                                 color: difference >= 0 ? "#009A29" : "#CB272D",
                                                                 marginLeft: 2,
@@ -417,7 +422,7 @@ const Home = () => {
                                                             }}
                                                         >
                                                             {calculatePercentage(Number(currentRealTime[item.key] || 0), Number(compareRealTime[item.key]) || 0) + "%"}
-                                                        </span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div style={{ color: "#86909C", fontSize: 14 }}>
@@ -495,7 +500,11 @@ const Home = () => {
                                                 />
                                             </div>
                                             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#C9CDD4" }}>
-                                                <IconArrowIn />
+                                                <IconArrowIn
+                                                    style={{
+                                                        fontSize: "16px",
+                                                    }}
+                                                />
                                             </div>
                                         </div>
                                     </List.Item>

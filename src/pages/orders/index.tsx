@@ -323,7 +323,11 @@ const Orders = () => {
                                             />
                                         </div>
                                         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#C9CDD4" }}>
-                                            <IconArrowIn />
+                                            <IconArrowIn
+                                                style={{
+                                                    fontSize: "16px",
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                 </List.Item>
