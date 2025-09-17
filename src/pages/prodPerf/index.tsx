@@ -198,7 +198,7 @@ const ProdPerf = () => {
                             <SelectCustomize filterValue={filterValue} setFilterValue={setFilterValue} handleConfirm={handleFilter} pageType={"prod"} />
                         </Dropdown>
                     </div>
-                    {filterValue.compareType == "single " ? (
+                    {filterValue?.compareType == "single" ? (
                         <div
                             style={{
                                 height: 22,
@@ -292,6 +292,12 @@ const ProdPerf = () => {
                                 <IconLoop
                                     style={{
                                         color: "#4E5969",
+                                    }}
+                                    onClick={async () => {
+                                        console.log(filterValueInit, "filterValueInit");
+
+                                        setFilterValue(filterValueInit);
+                                        await getTopProductList(searchOption, filterValueInit);
                                     }}
                                 />
                             </div>
