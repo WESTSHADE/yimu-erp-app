@@ -12,6 +12,7 @@ import { filterValueInit } from "../../constant/global";
 
 const ProdPerf = () => {
     const [topProductList, setTopProductList] = useState<PROD.topProducts[]>([]);
+    const [compareTopProductList, setCompareTopProductList] = useState<PROD.compareTopProducts[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [filterValue, setFilterValue] = useState<GLOBAL.filterType>(filterValueInit);
     const [showDropdown, setShowDropdown] = useState<boolean>(false);
@@ -27,7 +28,74 @@ const ProdPerf = () => {
 
     const handleFilter = async (filterValue: GLOBAL.filterType) => {
         setFilterValue(filterValue);
-        await getTopProductList(searchOption, filterValue);
+        if (filterValue.compareType == "single") {
+            await getTopProductList(searchOption, filterValue);
+        } else {
+            await getCompareTopProductList(searchOption, filterValue);
+        }
+    };
+
+    const getCompareTopProductList = async (searchOption: PROD.searchOption, filterValue: GLOBAL.filterType) => {
+        const { search } = searchOption;
+        setLoading(true);
+        const currentDate = [filterValue.dateRange?.[0], filterValue.dateRange?.[1]];
+        const compareDate = [filterValue.compareRange?.[0], filterValue.compareRange?.[1]];
+        const startTime1 = pacificTime(currentDate[0]).startOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        const endDate1 = pacificTime(currentDate[1]).endOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        const startTime2 = pacificTime(compareDate[0]).startOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        const endDate2 = pacificTime(compareDate[1]).endOf("day").utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        let new_topProductList: PROD.compareTopProducts[] = [];
+        await getOverviewProduct(startTime1, endDate1, 10000).then((res) => {
+            let topProductList = [...res.rankings.topProducts];
+            if (search) {
+                topProductList = [...topProductList].filter((item) => (item.name || "").includes(search));
+            }
+            new_topProductList = [
+                ...topProductList.map((item) => {
+                    return {
+                        id: item.id,
+                        name: item.name,
+                        netSales1: item.netSales,
+                        sold1: item.sold,
+                        product: item.product,
+                    };
+                }),
+            ];
+        });
+        await getOverviewProduct(startTime2, endDate2, 10000).then((res) => {
+            let topProductList = [...res.rankings.topProducts];
+            if (search) {
+                topProductList = [...topProductList].filter((item) => (item.name || "").includes(search));
+            }
+            for (let i = 0; i < topProductList.length; i++) {
+                const index = new_topProductList.findIndex((item) => item.id == topProductList[i].id);
+                if (index != -1) {
+                    new_topProductList[i] = {
+                        ...new_topProductList[i],
+                        netSales2: topProductList[i].netSales,
+                        sold2: topProductList[i].sold,
+                    };
+                } else {
+                    new_topProductList.push({
+                        id: topProductList[i].id,
+                        name: topProductList[i].name,
+                        netSales1: 0,
+                        sold1: 0,
+                        product: topProductList[i].product,
+                        netSales2: topProductList[i].netSales,
+                        sold2: topProductList[i].sold,
+                    });
+                }
+            }
+        });
+        if (filterValue.sortType) {
+            new_topProductList = new_topProductList.sort(
+                (a, b) => b[(filterValue.sortType as "sold" | "netSales") == "sold" ? "sold1" : "netSales1"] - a[(filterValue.sortType as "sold" | "netSales") == "sold" ? "sold1" : "netSales1"]
+            );
+        }
+        setCompareTopProductList(new_topProductList);
+        setLoading(false);
+        setShowDropdown(false);
     };
 
     const getTopProductList = async (searchOption: PROD.searchOption, filterValue: GLOBAL.filterType) => {
@@ -212,19 +280,71 @@ const ProdPerf = () => {
                         bordered={false}
                         size={"small"}
                         header={null}
-                        dataSource={topProductList}
+                        dataSource={filterValue.compareType == "single" ? topProductList : compareTopProductList}
                         render={(item, index) => {
-                            const data = item?.product?.variation || item?.product;
-                            const productData: DataType = [
-                                {
-                                    label: "Items Sold",
-                                    value: item.sold,
-                                },
-                                {
-                                    label: "Net Sales",
-                                    value: formatMoney(item.netSales),
-                                },
-                            ];
+                            const data = item?.product?.variation || item?.product?.product;
+                            const productData: DataType =
+                                filterValue.compareType == "single"
+                                    ? [
+                                          {
+                                              label: "Items Sold",
+                                              value: item.sold,
+                                          },
+                                          {
+                                              label: "Net Sales",
+                                              value: formatMoney(item.netSales),
+                                          },
+                                      ]
+                                    : [
+                                          {
+                                              label: "Sales Quantity-Date1",
+                                              value: (
+                                                  <span
+                                                      style={{
+                                                          color: "#0E42D2",
+                                                      }}
+                                                  >
+                                                      {item.sold1}
+                                                  </span>
+                                              ),
+                                          },
+                                          {
+                                              label: "Sales Quantity-Date2",
+                                              value: (
+                                                  <span
+                                                      style={{
+                                                          color: "#009A29",
+                                                      }}
+                                                  >
+                                                      {item.sold2}
+                                                  </span>
+                                              ),
+                                          },
+                                          {
+                                              label: "Items Sold-Date1",
+                                              value: (
+                                                  <span
+                                                      style={{
+                                                          color: "#0E42D2",
+                                                      }}
+                                                  >
+                                                      {formatMoney(item.netSales1 || 0)}
+                                                  </span>
+                                              ),
+                                          },
+                                          {
+                                              label: "Items Sold-Date2",
+                                              value: (
+                                                  <span
+                                                      style={{
+                                                          color: "#009A29",
+                                                      }}
+                                                  >
+                                                      {formatMoney(item.netSales2 || 0)}
+                                                  </span>
+                                              ),
+                                          },
+                                      ];
                             return (
                                 <List.Item
                                     key={index}
@@ -247,23 +367,43 @@ const ProdPerf = () => {
                                             >
                                                 {item?.name}
                                             </div>
-                                            <Descriptions
-                                                data={productData}
-                                                column={1}
-                                                style={{
-                                                    width: "100%",
-                                                }}
-                                                labelStyle={{
-                                                    paddingBottom: "4px",
-                                                    height: 22,
-                                                    color: "#86909C",
-                                                    fontWeight: 400,
-                                                }}
-                                                valueStyle={{
-                                                    paddingBottom: "4px",
-                                                    textAlign: "right",
-                                                }}
-                                            />
+                                            {filterValue.compareType == "single" ? (
+                                                <Descriptions
+                                                    data={productData}
+                                                    column={1}
+                                                    style={{
+                                                        width: "100%",
+                                                    }}
+                                                    labelStyle={{
+                                                        paddingBottom: "4px",
+                                                        height: 22,
+                                                        color: "#86909C",
+                                                        fontWeight: 400,
+                                                    }}
+                                                    valueStyle={{
+                                                        paddingBottom: "4px",
+                                                        textAlign: "right",
+                                                    }}
+                                                />
+                                            ) : (
+                                                <Descriptions
+                                                    data={productData}
+                                                    column={1}
+                                                    style={{
+                                                        width: "100%",
+                                                    }}
+                                                    labelStyle={{
+                                                        paddingBottom: "4px",
+                                                        height: 22,
+                                                        color: "#86909C",
+                                                        fontWeight: 400,
+                                                    }}
+                                                    valueStyle={{
+                                                        paddingBottom: "4px",
+                                                        textAlign: "right",
+                                                    }}
+                                                />
+                                            )}
                                         </div>
                                     </div>
                                 </List.Item>

@@ -1,3 +1,12 @@
+import { Toast } from "@arco-design/mobile-react";
+
+// 扩展 Window 接口
+declare global {
+    interface Window {
+        toastInstance?: any;
+    }
+}
+
 /**
  * 计算两个值的百分比关系
  * @param currentValue
@@ -19,3 +28,16 @@ export function calculatePercentage(currentValue: number, comparisonValue: numbe
         return percentageChange.toFixed(2);
     }
 }
+
+/**
+ * 轻提示
+ * @param  {"show" | "success" | "error" | "loading" | "info"} [func] - 提示类型
+ * @param {any} [options] - 传参
+ * @returns
+ */
+export const toast = (func: "show" | "success" | "error" | "loading" | "info", options?: any) => {
+    if (window.toastInstance) {
+        window.toastInstance.close();
+    }
+    window.toastInstance = (Toast as any)[func](options);
+};

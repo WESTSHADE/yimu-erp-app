@@ -6,6 +6,15 @@ declare namespace PROD {
         sold: number;
         product: ORDERS.product;
     };
+    type compareTopProducts = {
+        id: number;
+        name: string;
+        netSales1: number;
+        sold1: number;
+        product: ORDERS.product;
+        netSales2?: number;
+        sold2?: number;
+    };
 
     type searchOption = {
         reset: boolean = true;

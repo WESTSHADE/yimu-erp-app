@@ -23,4 +23,7 @@ export const filterValueInit = {
     endTime: undefined,
     singleTime: pacificTime().valueOf(),
     sortType: "sold",
+    compareType: "single",
+    dateRange: [undefined, undefined] as [number | undefined, number | undefined],
+    compareRange: [undefined, undefined] as [number | undefined, number | undefined],
 };

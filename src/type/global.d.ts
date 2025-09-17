@@ -56,5 +56,9 @@ declare namespace GLOBAL {
         endTime: number | undefined;
         singleTime: number;
         sortType?: string;
+        // "single" | "compare"
+        compareType?: string;
+        dateRange?: [number | undefined, number | undefined];
+        compareRange?: [number | undefined, number | undefined];
     };
 }
