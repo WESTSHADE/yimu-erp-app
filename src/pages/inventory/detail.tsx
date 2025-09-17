@@ -134,7 +134,7 @@ const InventoryDetail = () => {
                 <NavBar
                     ref={navBarRef}
                     onClickLeft={() => {
-                        navigator("/inventory");
+                        navigator(-1);
                     }}
                     fixed={false}
                     hasBottomLine={false}

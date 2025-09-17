@@ -5,6 +5,7 @@ import { Layout } from "@arco-design/web-react";
 import Sider from "./Sider";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import enUS from "@arco-design/mobile-utils/esm/locale/en-US";
+import { useScrollRestoration } from "../hooks/useScrollRestoration";
 
 const Footer = Layout.Footer;
 const Content = Layout.Content;
@@ -12,6 +13,7 @@ const Content = Layout.Content;
 const MainLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const scrollRef = useScrollRestoration("main-scroll-container");
     // 在主布局中启用响应式适配
     useEffect(() => {
         enableFlexible();
@@ -40,6 +42,7 @@ const MainLayout = () => {
         <ContextProvider locale={enUS}>
             <Layout style={{ height: "100vh", position: "relative", display: "flex", flexDirection: "column", backgroundColor: "#F7F8FA" }}>
                 <Content
+                    ref={scrollRef}
                     id="main-scroll-container"
                     style={{
                         overflow: "auto",
