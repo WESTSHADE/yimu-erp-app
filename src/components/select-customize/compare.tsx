@@ -117,7 +117,7 @@ const CompareComponent: React.FC<propType> = (props) => {
                     setPicker3Visible(false);
                 }}
                 onOk={(timestamp, obj) => {
-                    setFilterValue({ ...filterValue, compareRange: [timestamp as number, filterValue?.dateRange?.[1] || undefined] });
+                    setFilterValue({ ...filterValue, compareRange: [timestamp as number, filterValue?.compareRange?.[1] || undefined] });
                 }}
                 formatter={(value, type) => {
                     if (type === "year") {
