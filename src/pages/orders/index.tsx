@@ -302,6 +302,8 @@ const Orders = () => {
                                                     display: "flex",
                                                     width: "100%",
                                                     justifyContent: "space-between",
+                                                    fontSize: 14,
+                                                    fontWeight: 500,
                                                 }}
                                             >
                                                 <div>{`WS${item.id} ${item?.shipping?.firstName || ""} ${item?.shipping?.lastName || ""}`}</div>

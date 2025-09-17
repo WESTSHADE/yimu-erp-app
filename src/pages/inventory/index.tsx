@@ -318,6 +318,7 @@ const Inventory = () => {
                                 marginBottom: 8,
                                 display: "flex",
                                 justifyContent: "space-between",
+                                alignItems: "center",
                             }}
                         >
                             <div>SKU Below Safety Stock</div>
