@@ -519,7 +519,7 @@ const Home = () => {
                                     navigate("/orders");
                                 }}
                             >
-                                View all Orders
+                                View All Orders
                             </PCButton>
                         </div>
                     </Card>
@@ -605,7 +605,7 @@ const Home = () => {
                                     navigate("/prodPerf");
                                 }}
                             >
-                                View all products
+                                View All Products
                             </PCButton>
                         </div>
                     </Card>

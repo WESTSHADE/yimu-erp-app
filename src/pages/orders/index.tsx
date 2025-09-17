@@ -140,7 +140,7 @@ const Orders = () => {
                         >
                             <Input
                                 style={{ height: 32 }}
-                                placeholder="Enter Order Id to search"
+                                placeholder="Enter orderId to search"
                                 allowClear
                                 value={searchOption.search}
                                 onClear={() => {
