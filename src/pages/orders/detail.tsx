@@ -128,7 +128,7 @@ const OrdersDetail = () => {
                             <IconLeft
                                 style={{
                                     fontSize: "20px",
-                                    marginLeft: "12px",
+                                    marginLeft: "16px",
                                     color: "#1D2129",
                                 }}
                                 onClick={() => {
