@@ -8,14 +8,34 @@ import request from "../utils/request";
  * @returns
  */
 export const getOrders = (
-    startTime: string,
-    endTime: string,
-    page: number,
-    pageSize: number,
-    searchParams: string
+  startTime: string,
+  endTime: string,
+  page: number,
+  pageSize: number,
+  searchParams: string
 ): Promise<{
-    dataSummary: ORDERS.order[];
-    totals: HOME.ordersTotals;
+  data: ORDERS.order[];
+  totals: HOME.ordersTotals;
 }> => {
-    return request.get(`/generate-overview-ordersV2?sort[0]=createdAt:desc&start=${startTime}&end=${endTime}&timeGranularity=day&page=${page}&pageSize=${pageSize}${searchParams}`);
+  return request.get(
+    `/orders?sort[0]=paymentTime:desc&sort[1]=createdAt:desc&filters[createdAt][$gte]=${startTime}&filters[createdAt][$lte]=${endTime}&pagination[page]=${page}&pagination[pageSize]=${pageSize}${searchParams}`
+  );
+};
+
+/**
+ * 获取 用户类型
+ * @param pageSize
+ * @param page
+ * @param searchParams
+ * @returns
+ */
+export const getCustomerType = (
+  email: string,
+  customerName: string
+): Promise<{
+  data: ORDERS.customer[];
+}> => {
+  return request.get(
+    `/customers?filters[email][$eq]=${email}&filters[customerName][$eq]=${customerName}`
+  );
 };
