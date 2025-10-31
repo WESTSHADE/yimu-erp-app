@@ -142,7 +142,7 @@ const Orders = () => {
     useState<GLOBAL.filterType>(filterValueInit);
   const [searchOption, setSearchOption] = useState<ORDERS.searchOption>({
     page: 1,
-    pageSize: 10,
+    pageSize: 20,
     status: "all",
     reset: true,
     search: "",
@@ -159,7 +159,7 @@ const Orders = () => {
     searchOption: ORDERS.searchOption,
     filterValue: GLOBAL.filterType
   ) => {
-    const { status, reset, search } = searchOption;
+    const { status, reset, search, pageSize, page } = searchOption;
     const currentDate = filterValue.startTime
       ? filterValue.endTime
         ? [filterValue.startTime, filterValue.endTime]
@@ -182,7 +182,7 @@ const Orders = () => {
           : `&orderStatus=${JSON.stringify({
               is: status,
             })}`;
-    await getOrders(startTime, endDate, 1, 20, filter).then((res) => {
+    await getOrders(startTime, endDate, page, pageSize, filter).then((res) => {
       let new_ordersList = [];
       if (!reset) new_ordersList = [...ordersList, ...res.data];
       else new_ordersList = [...res.data];
@@ -439,17 +439,44 @@ const Orders = () => {
       </Sticky>
       <Spin loading={loading} style={{ display: "block" }}>
         <Card
-          style={{ margin: "16px" }}
+          style={{ margin: "16px 0" }}
           bordered={false}
-          bodyStyle={{ padding: "0px 14px" }}
+          bodyStyle={{ padding: "0px 14px", backgroundColor: "#f7f8fa" }}
         >
           <List
+            style={{
+              backgroundColor: "transparent",
+            }}
             bordered={false}
             size={"small"}
             header={null}
             dataSource={ordersList}
-            onReachBottom={(currentPage) => {
-              console.log(currentPage, "currentPage");
+            virtualListProps={{
+              height: 600, // 或者不设 height，改用 scrollOptions 绑定到外层容器
+              itemHeight: 80,
+              threshold: 50,
+              onScroll: (
+                event: React.UIEvent<HTMLElement>,
+                info: {
+                  index: number;
+                }
+              ) => {
+                if (info.index == ordersList.length) {
+                  setSearchOption({
+                    ...searchOption,
+                    page: searchOption.page + 1,
+                  });
+                  getOrdersList(
+                    {
+                      ...searchOption,
+                      page: searchOption.page + 1,
+                      pageSize: 20,
+                      reset: false,
+                    },
+                    filterValue
+                  );
+                }
+              },
             }}
             render={(item, index) => {
               const orderData: DataType = [
@@ -480,7 +507,8 @@ const Orders = () => {
                   }}
                   key={index}
                   style={{
-                    padding: "12px 0",
+                    padding: "12px 16px",
+                    backgroundColor: "white",
                   }}
                 >
                   <div
